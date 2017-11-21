@@ -14,7 +14,7 @@ export default ({ data }) => (
       {Object.keys(data.paths).sort().filter(path => path.split('/').length === 2).map(path => (
         <RoutedButton key={path} path={`/endpoint?path=${encodeURIComponent(path)}`} hoverIndicator={true}>
           <Box pad={{ horizontal: 'large', vertical: 'xsmall' }}>
-            <Text size='large'>{path}</Text>
+            <Text size='large'>{path.substr(1)}</Text>
           </Box>
         </RoutedButton>
       ))}
