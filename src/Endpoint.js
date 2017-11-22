@@ -1,4 +1,6 @@
-import React from 'react';
+import React, { Component } from 'react';
+import { findDOMNode } from 'react-dom';
+import hljs from 'highlight.js';
 
 import { Box, Heading, Markdown, RoutedButton } from 'grommet';
 import { Previous as BackIcon } from 'grommet-icons';
@@ -17,21 +19,23 @@ const getRef = (data, path) => {
   return node;
 };
 
-// const refToJson = (data, path) => {
-//   console.log('!!! refToJson', path);
-//   const definition = getRef(data, path);
-//   return definitionToJson(data, definition);
-// };
+const definitionToJson = (data, def, visited = {}) => {
+  // avoid endless recursion
+  const nextVisited = { ...visited };
+  if (def.$ref) {
+    if (visited[def.$ref]) {
+      return def.$ref;
+    }
+    nextVisited[def.$ref] = true;
+  }
 
-const definitionToJson = (data, def) => {
   const definition = def.$ref ? getRef(data, def.$ref) : def;
-  console.log('!!! definitionToJson', def.$ref, definition);
   if (definition.type === 'array') {
-    return [definitionToJson(data, definition.items)];
+    return [definitionToJson(data, definition.items, nextVisited)];
   } else if (definition.properties) {
     const result = {};
     Object.keys(definition.properties).forEach((name) => {
-      result[name] = definitionToJson(data, definition.properties[name]);
+      result[name] = definitionToJson(data, definition.properties[name], nextVisited);
     });
     return result;
   } else if (definition.enum) {
@@ -39,6 +43,31 @@ const definitionToJson = (data, def) => {
   }
   return definition.type;
 };
+
+class Schema extends Component {
+  componentDidMount() {
+    if (this.ref) {
+      hljs.highlightBlock(findDOMNode(this.ref));
+    }
+  }
+
+  render() {
+    const { data, schema } = this.props;
+    if (!schema) {
+      return null;
+    }
+    return (
+      <Box
+        flex={true}
+        background='light-1'
+        pad={{ horizontal: 'small' }}
+        style={{ maxWidth: '70vw', maxHeight: 384, overflow: 'auto' }}
+      >
+        <pre><code ref={(ref) => { this.ref = ref; }} className='json'>{JSON.stringify(definitionToJson(data, schema), null, 2)}</code></pre>
+      </Box>
+    );
+  }
+}
 
 const Parameter = ({ data, parameter, first }) => (
   <Box
@@ -53,13 +82,9 @@ const Parameter = ({ data, parameter, first }) => (
       </Heading>
     </Box>
     <Box flex={true} pad={{ horizontal: 'medium' }}>
-      <Markdown content={parameter.description} />
+      <Markdown content={(parameter.description || '').replace(new RegExp('</BR>', 'gi'), '\n\n')} />
     </Box>
-    {parameter.schema ? (
-      <Box flex={true} background='light-1' pad={{ horizontal: 'small' }}>
-        <pre>{JSON.stringify(definitionToJson(data, parameter.schema), null, 2)}</pre>
-      </Box>
-    ) : null}
+    <Schema data={data} schema={parameter.schema} />
   </Box>
 );
 
@@ -78,28 +103,26 @@ const Response = ({
       </Heading>
     </Box>
     <Box flex={true} pad={{ horizontal: 'medium' }}>
-      <Markdown content={response.description} />
+      <Markdown content={(response.description || '').replace(new RegExp('</BR>', 'gi'), '\n\n')} />
     </Box>
-    {response.schema ? (
-      <Box flex={true} background='light-1' pad={{ horizontal: 'small' }}>
-        <pre>{JSON.stringify(definitionToJson(data, response.schema), null, 2)}</pre>
-      </Box>
-    ) : null}
+    <Schema data={data} schema={response.schema} />
   </Box>
 );
 
-export default ({ data, path }) => (
+export default ({ data, path, url }) => (
   <Box>
     <Box
       direction='row'
+      justify='between'
       align='center'
       pad={{ horizontal: 'small', vertical: 'medium' }}
       background='neutral-1'
     >
-      <RoutedButton path='/' icon={<BackIcon />} />
+      <RoutedButton path={`/?url=${encodeURIComponent(url)}`} icon={<BackIcon color='light-1' />} />
       <Box pad={{ horizontal: 'medium' }}>
         <Heading level={1} margin='none'>{path.substr(1)}</Heading>
       </Box>
+      <Box pad='medium' />
     </Box>
     {Object.keys(data.paths)
       // everything that starts with the path we have
@@ -110,11 +133,13 @@ export default ({ data, path }) => (
         const method = data.paths[subPath][methodName];
         return (
           <Box key={methodName}>
-            <Box pad={{ horizontal: 'xlarge', vertical: 'small' }} background='light-2'>
+            <Box pad={{ horizontal: 'xlarge', vertical: 'medium' }} background='light-2'>
               <Heading level={2} margin='none'>
                 <strong>{methodName.toUpperCase()}</strong> {subPath}
               </Heading>
-              <Markdown content={method.description} />
+              <Markdown
+                content={(method.description || '').replace(new RegExp('</BR>', 'gi'), '\n\n')}
+              />
             </Box>
             <Box pad={{ horizontal: 'xlarge' }} margin={{ bottom: 'large' }}>
               <Heading level={2}>Parameters</Heading>

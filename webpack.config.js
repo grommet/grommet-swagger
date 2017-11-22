@@ -6,7 +6,10 @@ const env = process.env.NODE_ENV || 'production';
 const useAlias = process.env.USE_ALIAS;
 
 let plugins = [
-  new CopyWebpackPlugin([{ from: './public' }]),
+  new CopyWebpackPlugin([
+    { from: './public' },
+    { from: './node_modules/highlight.js/styles/github.css' },
+  ]),
   new webpack.DefinePlugin({
     'process.env': {
       NODE_ENV: JSON.stringify(env),
@@ -20,6 +23,7 @@ let alias;
 const devConfig = {};
 if (env === 'production') {
   loaderOptionsConfig.minimize = true;
+  /* eslint-disable function-paren-newline */
   plugins.push(
     new webpack.optimize.UglifyJsPlugin({
       compress: {
@@ -43,6 +47,7 @@ if (env === 'production') {
       },
     })
   );
+  /* eslint-enable function-paren-newline */
 } else {
   plugins = plugins.concat([
     new webpack.HotModuleReplacementPlugin(),
