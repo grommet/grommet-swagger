@@ -61,7 +61,7 @@ if (env === 'production') {
     compress: true,
     clientLogLevel: 'none',
     contentBase: path.resolve('./dist'),
-    publicPath: '/',
+    publicPath: '/grommet-swagger',
     quiet: true,
     hot: true,
     watchOptions: {

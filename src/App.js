@@ -12,7 +12,9 @@ import Endpoints from './Endpoints';
 import Endpoint from './Endpoint';
 import Loading from './Loading';
 
-const history = createBrowserHistory();
+const history = createBrowserHistory({
+  basename: '/grommet-swagger',
+});
 
 export default class App extends Component {
   state = { loading: true }
