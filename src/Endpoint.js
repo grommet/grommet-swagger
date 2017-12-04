@@ -109,7 +109,7 @@ const Response = ({
   </Box>
 );
 
-export default ({ data, path, url }) => (
+export default ({ contextSearch, data, path }) => (
   <Box>
     <Box
       direction='row'
@@ -118,7 +118,7 @@ export default ({ data, path, url }) => (
       pad={{ horizontal: 'small', vertical: 'medium' }}
       background='neutral-1'
     >
-      <RoutedButton path={`/?url=${encodeURIComponent(url)}`} icon={<BackIcon color='light-1' />} />
+      <RoutedButton path={`/${contextSearch}`} icon={<BackIcon color='light-1' />} />
       <Box pad={{ horizontal: 'medium' }}>
         <Heading level={1} margin='none'>{path.substr(1)}</Heading>
       </Box>

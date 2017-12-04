@@ -3,7 +3,7 @@ import React from 'react';
 import { Anchor, Box, Button, Heading, Markdown, RoutedButton, Text } from 'grommet';
 import { Eject as UnloadIcon } from 'grommet-icons';
 
-export default ({ data, onUnload, url }) => (
+export default ({ contextSearch, data, onUnload }) => (
   <div>
     <Box
       direction='row'
@@ -24,7 +24,7 @@ export default ({ data, onUnload, url }) => (
       {Object.keys(data.paths).sort().filter(path => path.split('/').length === 2).map(path => (
         <RoutedButton
           key={path}
-          path={`/endpoint?url=${encodeURIComponent(url)}&path=${encodeURIComponent(path)}`}
+          path={`/endpoint${contextSearch}&path=${encodeURIComponent(path)}`}
           hoverIndicator={true}
         >
           <Box pad={{ horizontal: 'xlarge', vertical: 'xsmall' }}>
