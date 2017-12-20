@@ -23,6 +23,7 @@ let alias;
 const devConfig = {};
 if (env === 'production') {
   loaderOptionsConfig.minimize = true;
+  devConfig.devtool = 'source-map';
   /* eslint-disable function-paren-newline */
   plugins.push(
     new webpack.optimize.UglifyJsPlugin({
@@ -61,7 +62,7 @@ if (env === 'production') {
     compress: true,
     clientLogLevel: 'none',
     contentBase: path.resolve('./dist'),
-    publicPath: '/grommet-swagger',
+    publicPath: '/', // '/grommet-swagger',
     quiet: true,
     hot: true,
     watchOptions: {

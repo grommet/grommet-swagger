@@ -16,7 +16,8 @@
     "fetch": true,
     "WebSocket": true,
     "alert": true,
-    "URLSearchParams": true
+    "URLSearchParams": true,
+    "localStorage": true
   },
   "rules": {
     "comma-dangle": ["error", "always-multiline"],
