@@ -18,16 +18,23 @@ export default class extends Component {
     const method = data.paths[path][methodName];
     const bodyParameters = (method.parameters || []).filter(p => p.in === 'body');
     const queryParameters = (method.parameters || []).filter(p => p.in === 'query');
+    const defaultValues = {};
     const values = {};
+    const valuesValid = {};
     bodyParameters.forEach((p) => {
-      values[p.name] = JSON.stringify(definitionToJson(data, p.schema), null, 2);
+      const value = JSON.stringify(definitionToJson(data, p.schema), null, 2);
+      values[p.name] = value;
+      defaultValues[p.name] = value;
+      valuesValid[p.name] = true;
     });
     this.state = {
       bodyParameters,
       defaultHeaders,
+      defaultValues,
       queryParameters,
       url: origin + data.basePath + subPath,
       values,
+      valuesValid,
     };
   }
 
@@ -50,6 +57,7 @@ export default class extends Component {
     /* eslint-disable react/no-did-mount-set-state */
     this.setState({
       headers: JSON.stringify(headers, null, 2),
+      headersValid: true,
       url: origin + data.basePath + subPath,
     });
     /* eslint-enable react/no-did-mount-set-state */
@@ -61,7 +69,7 @@ export default class extends Component {
     }
   }
 
-  append = (name, value) =>
+  appendUrl = (name, value) =>
     () => {
       const { url } = this.state;
       let nextUrl = `${url}${url.indexOf('?') === -1 ? '?' : '&'}${name}=`;
@@ -69,6 +77,41 @@ export default class extends Component {
         nextUrl += encodeURIComponent(value);
       }
       this.setState({ url: nextUrl });
+    };
+
+  setHeaders = (event) => {
+    const nextHeaders = event.target.value;
+    let headersValid = false;
+    try {
+      JSON.parse(nextHeaders);
+      headersValid = true;
+    } catch (e) {
+      // no-op
+    }
+    this.setState({ headers: nextHeaders, headersValid });
+    try {
+      localStorage.setItem('headers', nextHeaders);
+    } catch (e) {
+      console.warn(`Unable to preserve headers, probably due
+        to being in private browsing mode.`);
+    }
+  };
+
+  setBody = name =>
+    (event) => {
+      const { values: oldValues, valuesValid: oldValuesValid } = this.state;
+      const nextValue = event.target.value;
+      let valueValid = false;
+      try {
+        JSON.parse(nextValue);
+        valueValid = true;
+      } catch (e) {
+        // no-op
+      }
+      this.setState({
+        values: { ...oldValues, [name]: nextValue },
+        valuesValid: { ...oldValuesValid, [name]: valueValid },
+      });
     };
 
   send = () => {
@@ -126,8 +169,9 @@ export default class extends Component {
   render() {
     const { contextSearch, methodName, path } = this.props;
     const {
-      bodyParameters, defaultHeaders, headers, queryParameters,
-      response, responseText, showHeaders, state, url, values,
+      bodyParameters, defaultHeaders, defaultValues, headers, headersValid,
+      queryParameters, response, responseText, showHeaders, state, url,
+      values, valuesValid,
     } = this.state;
     return (
       <Box>
@@ -166,9 +210,11 @@ export default class extends Component {
           >
 
             {showHeaders && (
-              <Box>
-                <Box direction='row' align='center'>
-                  <Heading level={3}>Headers</Heading>
+              <Box margin={{ vertical: 'medium' }}>
+                <Box direction='row' justify='between' align='center'>
+                  <Heading level={3} margin='none'>Headers</Heading>
+                  {headersValid ? <Text color='status-ok'>valid JSON</Text> :
+                  <Text color='status-critical'>invalid JSON</Text>}
                   <Button
                     onClick={() => {
                       this.setState({ headers: JSON.stringify(defaultHeaders, null, 2) });
@@ -179,20 +225,7 @@ export default class extends Component {
                     </Box>
                   </Button>
                 </Box>
-                <TextArea
-                  rows={4}
-                  value={headers}
-                  onChange={(event) => {
-                    const nextHeaders = event.target.value;
-                    this.setState({ headers: nextHeaders });
-                    try {
-                      localStorage.setItem('headers', nextHeaders);
-                    } catch (e) {
-                      console.warn(`Unable to preserve headers, probably due
-                        to being in private browsing mode.`);
-                    }
-                  }}
-                />
+                <TextArea rows={4} value={headers} onChange={this.setHeaders} />
               </Box>
             )}
 
@@ -210,7 +243,7 @@ export default class extends Component {
             {queryParameters.map(p => (
               <Box direction='row' justify='start' align='start'>
                 <Box basis='small' flex={false}>
-                  <Button key={p.name} plain={true} onClick={this.append(p.name)}>
+                  <Button key={p.name} plain={true} onClick={this.appendUrl(p.name)}>
                     <Box align='start'>
                       <Text color='brand'><strong>{p.name}</strong></Text>
                     </Box>
@@ -223,14 +256,14 @@ export default class extends Component {
                 )}
                 <Box direction='row' wrap={true}>
                   {p.enum && p.enum.map(value => (
-                    <Button key={value} plain={true} onClick={this.append(p.name, value)}>
+                    <Button key={value} plain={true} onClick={this.appendUrl(p.name, value)}>
                       <Box align='start' margin={{ left: 'medium' }}>
                         <Text color='brand'><strong>{value}</strong></Text>
                       </Box>
                     </Button>
                   ))}
                   {p.items && p.items.enum && p.items.enum.map(value => (
-                    <Button key={value} plain={true} onClick={this.append(p.name, value)}>
+                    <Button key={value} plain={true} onClick={this.appendUrl(p.name, value)}>
                       <Box align='start' margin={{ left: 'medium' }}>
                         <Text color='brand'><strong>{value}</strong></Text>
                       </Box>
@@ -242,15 +275,24 @@ export default class extends Component {
 
             {bodyParameters.map(p => (
               <Box key={p.name}>
-                <Heading level={3} margin='none'>{p.name}</Heading>
-                <TextArea
-                  rows={8}
-                  value={values[p.name]}
-                  onChange={(event) => {
-                    const { oldValues } = this.state;
-                    this.setState({ values: { ...oldValues, [p.name]: event.target.value } });
-                  }}
-                />
+                <Box direction='row' justify='between' align='center'>
+                  <Heading level={3} margin='none'>{p.name}</Heading>
+                  {valuesValid[p.name] ? <Text color='status-ok'>valid JSON</Text> :
+                  <Text color='status-critical'>invalid JSON</Text>}
+                  <Button
+                    onClick={() => {
+                      this.setState({
+                        values: { ...values, [p.name]: defaultValues[p.name] },
+                        valuesValid: { ...valuesValid, [p.name]: true },
+                      });
+                    }}
+                  >
+                    <Box pad='small'>
+                      <Text color='brand'>reset</Text>
+                    </Box>
+                  </Button>
+                </Box>
+                <TextArea rows={8} value={values[p.name]} onChange={this.setBody(p.name)} />
               </Box>
             ))}
 
