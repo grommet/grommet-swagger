@@ -24,6 +24,7 @@ export default class extends Component {
             flex='shrink'
             justify='between'
             pad='large'
+            style={{ minWidth: 0 }}
           >
             <Box pad={{ vertical: 'xlarge' }}>
               <Heading level={1} margin='none'>{data.info.title}</Heading>

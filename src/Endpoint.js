@@ -159,7 +159,12 @@ export default class extends Component {
         onChange={nextResponsive => this.setState({ responsive: nextResponsive })}
       >
         <Box direction='row' justify='center' responsive={true}>
-          <Box basis={responsive === 'wide' ? 'xlarge' : undefined} flex='shrink' pad='large'>
+          <Box
+            basis={responsive === 'wide' ? 'xlarge' : undefined}
+            flex='shrink'
+            pad='large'
+            style={{ minWidth: 0 }}
+          >
             <Box pad={{ bottom: 'large' }} border='bottom'>
               <Heading level={1} margin='none'>{path.substr(1)}</Heading>
             </Box>
