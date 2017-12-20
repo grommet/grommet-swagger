@@ -46,6 +46,7 @@ if (env === 'production') {
         comments: false,
         screw_ie8: true,
       },
+      sourceMap: true,
     })
   );
   /* eslint-enable function-paren-newline */
