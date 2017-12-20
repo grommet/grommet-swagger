@@ -4,7 +4,7 @@ import { Eject as UnloadIcon } from 'grommet-icons';
 import Nav from './Nav';
 
 export default class extends Component {
-  state = {};
+  state = { responsive: 'wide' };
 
   render() {
     const { contextSearch, data, onUnload } = this.props;

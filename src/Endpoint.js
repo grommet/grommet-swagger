@@ -149,7 +149,7 @@ const Method = ({
 );
 
 export default class extends Component {
-  state = {};
+  state = { responsive: 'wide' };
 
   render() {
     const { contextSearch, data, path } = this.props;
