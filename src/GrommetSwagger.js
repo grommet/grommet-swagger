@@ -95,15 +95,20 @@ export default class GrommetSwagger extends Component {
           />
           <Route
             path='/choose'
-            render={() => (
-              <Choose
-                loading={loading}
-                onLoad={this.onLoad}
-                error={error}
-                theme={theme}
-                url={url}
-              />
-            )}
+            render={() => {
+              if (data) {
+                return <Redirect to='/' />;
+              }
+              return (
+                <Choose
+                  loading={loading}
+                  onLoad={this.onLoad}
+                  error={error}
+                  theme={theme}
+                  url={url}
+                />
+              );
+            }}
           />
           <Route
             path='/endpoint'
