@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { findDOMNode } from 'react-dom';
 import hljs from 'highlight.js';
-import { Box, Heading, Markdown, RoutedButton, Text } from 'grommet';
+import { Box, Heading, Markdown, Responsive, RoutedButton, Text } from 'grommet';
 import { LinkNext } from 'grommet-icons';
 import Nav from './Nav';
 import { definitionToJson, searchString } from './utils';
@@ -99,7 +99,7 @@ const Method = ({
           path={`/execute${contextSearch}&${searchString({ path, subPath, methodName })}`}
           fill={true}
         >
-          <Box direction='row' align='center'>
+          <Box direction='row' align='center' wrap={true}>
             <Box background='brand' pad={{ horizontal: 'medium', vertical: 'xsmall' }}>
               <Text size='xlarge'>
                 <strong>{methodName.toUpperCase()}</strong>
@@ -148,29 +148,41 @@ const Method = ({
   </Box>
 );
 
-export default ({ contextSearch, data, path }) => (
-  <Box direction='row' responsive={true}>
-    <Box basis='3/4' flex={false} pad='large'>
-      <Box pad={{ bottom: 'large' }} border='bottom'>
-        <Heading level={1} margin='none'>{path.substr(1)}</Heading>
-      </Box>
-      {Object.keys(data.paths)
-        // everything that starts with the path we have
-        .filter(p => (p === path || p.substr(0, path.length + 1) === `${path}/`))
-        .map(subPath =>
-          Object.keys(data.paths[subPath])
-          .map(methodName => (
-            <Method
-              key={methodName}
-              contextSearch={contextSearch}
-              data={data}
-              method={data.paths[subPath][methodName]}
-              methodName={methodName}
-              path={path}
-              subPath={subPath}
-            />
-          )))}
-    </Box>
-    <Nav contextSearch={contextSearch} data={data} />
-  </Box>
-);
+export default class extends Component {
+  state = {};
+
+  render() {
+    const { contextSearch, data, path } = this.props;
+    const { responsive } = this.state;
+    return (
+      <Responsive
+        onChange={nextResponsive => this.setState({ responsive: nextResponsive })}
+      >
+        <Box direction='row' justify='center' responsive={true}>
+          <Box basis={responsive === 'wide' ? 'xlarge' : undefined} flex='shrink' pad='large'>
+            <Box pad={{ bottom: 'large' }} border='bottom'>
+              <Heading level={1} margin='none'>{path.substr(1)}</Heading>
+            </Box>
+            {Object.keys(data.paths)
+              // everything that starts with the path we have
+              .filter(p => (p === path || p.substr(0, path.length + 1) === `${path}/`))
+              .map(subPath =>
+                Object.keys(data.paths[subPath])
+                .map(methodName => (
+                  <Method
+                    key={methodName}
+                    contextSearch={contextSearch}
+                    data={data}
+                    method={data.paths[subPath][methodName]}
+                    methodName={methodName}
+                    path={path}
+                    subPath={subPath}
+                  />
+                )))}
+          </Box>
+          <Nav contextSearch={contextSearch} data={data} />
+        </Box>
+      </Responsive>
+    );
+  }
+}
