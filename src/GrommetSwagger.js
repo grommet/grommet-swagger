@@ -13,7 +13,7 @@ import Execute from './Execute';
 import Loading from './Loading';
 
 const history = createBrowserHistory({
-  // basename: '/grommet-swagger',
+  basename: '/grommet-swagger',
 });
 
 const THEMES = {
@@ -53,7 +53,9 @@ export default class GrommetSwagger extends Component {
             contextSearch += `&theme=${encodeURIComponent(theme)}`;
           }
           this.setState({ contextSearch });
-          history.replace(contextSearch);
+          if (queryString.parse(history.location.search).url.indexOf(contextSearch) === -1) {
+            history.replace(contextSearch);
+          }
         }
       })
       .catch(error => this.setState({ error: error.message, loading: false }));
