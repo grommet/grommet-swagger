@@ -12,16 +12,19 @@ import Endpoint from './Endpoint';
 import Execute from './Execute';
 import Loading from './Loading';
 
-const history = createBrowserHistory(/* { basename: '/grommet-swagger' } */);
-
 const THEMES = {
   hpe: hpeTheme,
 };
 
 export default class GrommetSwagger extends Component {
-  state = { loading: true, contextSearch: '?' };
+  constructor(props) {
+    super(props);
+    const history = createBrowserHistory({ basename: props.routePrefix });
+    this.state = { history, loading: true, contextSearch: '?' };
+  }
 
   componentDidMount() {
+    const { history } = this.state;
     const url = this.props.url || queryString.parse(history.location.search).url;
     const theme = this.props.theme || queryString.parse(history.location.search).theme;
     if (url) {
@@ -35,6 +38,7 @@ export default class GrommetSwagger extends Component {
   }
 
   onLoad = (url, theme) => {
+    const { history } = this.state;
     const parser = document.createElement('a');
     parser.href = url;
     this.setState({
@@ -64,8 +68,9 @@ export default class GrommetSwagger extends Component {
   }
 
   render() {
+    const { background } = this.props;
     const {
-      contextSearch, data, error, loading, origin, theme, url,
+      contextSearch, data, error, history, loading, origin, theme, url,
     } = this.state;
     let content;
     if (loading) {
@@ -83,6 +88,7 @@ export default class GrommetSwagger extends Component {
               if (data) {
                 return (
                   <Endpoints
+                    background={background}
                     contextSearch={contextSearch}
                     data={data}
                     theme={theme}
@@ -147,6 +153,7 @@ export default class GrommetSwagger extends Component {
               );
             }}
           />
+          <Redirect from='/*' to='/' />
         </Switch>
       );
     }

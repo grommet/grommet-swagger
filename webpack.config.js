@@ -63,7 +63,7 @@ if (env === 'production') {
     compress: true,
     clientLogLevel: 'none',
     contentBase: path.resolve('./dist'),
-    publicPath: '/', // '/grommet-swagger',
+    publicPath: '/grommet-swagger',
     quiet: true,
     hot: true,
     watchOptions: {
@@ -88,11 +88,11 @@ module.exports = Object.assign({
   output: {
     path: path.resolve('./dist'),
     filename: 'index.js',
-    publicPath: '/',
+    publicPath: '/grommet-swagger',
   },
   resolve: {
     alias,
-    extensions: ['.js', '.scss', '.css', '.json'],
+    extensions: ['.js', '.css', '.json'],
   },
   plugins,
   node: {

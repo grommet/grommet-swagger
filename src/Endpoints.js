@@ -7,7 +7,9 @@ export default class extends Component {
   state = { responsive: 'wide' };
 
   render() {
-    const { contextSearch, data, onUnload } = this.props;
+    const {
+      background, contextSearch, data, onUnload,
+    } = this.props;
     const { responsive } = this.state;
     return (
       <Responsive
@@ -17,7 +19,7 @@ export default class extends Component {
           direction='row'
           responsive={true}
           justify='center'
-          background='neutral-1'
+          background={background || 'neutral-1'}
         >
           <Box
             basis={responsive === 'wide' ? 'xlarge' : undefined}
@@ -27,7 +29,7 @@ export default class extends Component {
             style={{ minWidth: 0 }}
           >
             <Box pad={{ vertical: 'xlarge' }}>
-              <Heading level={1} margin='none'>{data.info.title}</Heading>
+              <Heading level={1} margin='none'><strong>{data.info.title}</strong></Heading>
               <Box pad={{ vertical: 'large' }}>
                 <Markdown content={(data.info.description || '').replace(new RegExp('</BR>', 'gi'), '\n\n')} />
               </Box>

@@ -1,18 +1,20 @@
+# This is the production version of Dockerfile for NCS-UI.
+# That is, this doesn't contain references to dynamic code.
 
-FROM node:alpine
+FROM node:7.10-alpine as builder
 
-RUN npm install live-server -g
+ENV YARN_CACHE_FOLDER /nodejs/yarncache
+ENV JOBS max
+ENV workspace /build
+COPY . $workspace
+WORKDIR $workspace
 
-WORKDIR /tmp
-COPY package.json /tmp/
-RUN yarn install
-WORKDIR /var/html/app
-COPY . /var/html/app/
-RUN cp -a /tmp/node_modules /var/html/app/
+RUN yarn cache clean
+RUN yarn
 RUN npm run build
 
-WORKDIR /var/html/app/dist
 
-EXPOSE 8080
-
-CMD live-server --port=8080 --entry-file=./index.html
+FROM nginx:1.13.6-alpine
+ENV workspace /build
+COPY --from=builder $workspace/dist/ /usr/share/nginx/html/
+COPY nginx-ncs.conf /etc/nginx/conf.d/default.conf
