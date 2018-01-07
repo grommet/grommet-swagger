@@ -47,7 +47,10 @@ export default class GrommetSwagger extends Component {
     fetch(url, { method: 'GET' })
       .then(response => response.text())
       .then(text => jsyaml.load(text))
-      .then(data => this.setState({ data, loading: false }))
+      .then((data) => {
+        document.title = data.info.title;
+        this.setState({ data, loading: false });
+      })
       .then(() => {
         if (!this.props.url) {
           let contextSearch = `?url=${encodeURIComponent(url)}`;
