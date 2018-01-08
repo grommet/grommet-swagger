@@ -87,8 +87,9 @@ module.exports = Object.assign({
   entry: './src/index.js',
   output: {
     path: path.resolve('./dist'),
-    filename: 'index.js',
-    publicPath: '/grommet-swagger',
+    filename: 'grommet-swagger.min.js',
+    libraryTarget: 'var',
+    library: 'GrommetSwagger',
   },
   resolve: {
     alias,

@@ -8,7 +8,6 @@
   <meta name="fragment" content="!" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
   <meta name="mobile-web-app-capable" content="yes">
-  <meta name="grommet-swagger-route-prefix" content="/grommet-swagger" />
   <link rel="shortcut icon" type="image/png" href="img/shortcut-icon.png" />
   <link rel="apple-touch-icon" sizes="196x196" type="image/png" href="img/mobile-app-icon.png">
   <link rel="stylesheet" href="github.css">
@@ -50,6 +49,15 @@
     @keyframes pulse {
       100% { background-color: #fff; }
   </style>
+  <script>
+    function renderIt() {
+      window.GrommetSwagger.mount('content', {
+        routePrefix: '/grommet-swagger'
+      });
+      document.body.classList.remove('loading');
+      document.body.style.margin = 0;
+    }
+  </script>
 </head>
 <body class="loading">
   <div id="content" tabindex="-1" style="outline: none;">
@@ -82,6 +90,6 @@
     }, 100)
     </script>
   </div>
-  <script async src="index.js"></script>
+  <script src="grommet-swagger.min.js" onload="renderIt()"></script>
 </body>
 </html>
