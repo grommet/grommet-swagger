@@ -7,6 +7,8 @@ const useAlias = process.env.USE_ALIAS;
 
 let plugins = [
   new CopyWebpackPlugin([
+    { from: './README.md' },
+    { from: './package.json' },
     { from: './public' },
     { from: './node_modules/highlight.js/styles/github.css' },
   ]),
