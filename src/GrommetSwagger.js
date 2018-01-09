@@ -1,5 +1,3 @@
-import 'whatwg-fetch';
-
 import React, { Component } from 'react';
 import { Redirect, Router, Route, Switch } from 'react-router-dom';
 import queryString from 'query-string';

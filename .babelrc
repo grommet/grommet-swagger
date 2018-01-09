@@ -1,7 +1,8 @@
 {
   "presets": [ "env", "stage-1", "react"],
   "plugins": [
-    "styled-components"
+    "styled-components",
+    "transform-object-rest-spread"
   ],
   "env": {
     "development": {
