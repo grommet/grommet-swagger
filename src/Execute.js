@@ -179,7 +179,7 @@ export default class extends Component {
         onChange={nextResponsive => this.setState({ responsive: nextResponsive })}
       >
         <Box direction='row' justify='center'>
-          <Box basis='xlarge'>
+          <Box basis='xlarge' full='horizontal'>
             <Box margin='large'>
 
               <Box direction='row' justify='between' align='center' margin={{ bottom: 'large' }}>

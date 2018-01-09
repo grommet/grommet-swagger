@@ -1,6 +1,6 @@
 {
   "name": "grommet-swagger",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "main": "src/index.js",
   "description": "API documentation via swagger",
   "repository": "",
