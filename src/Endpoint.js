@@ -14,22 +14,24 @@ class Schema extends Component {
   }
 
   render() {
-    const { data, schema } = this.props;
+    const { data, label, schema } = this.props;
     if (!schema) {
       return null;
     }
     return (
-      <Box
-        flex={true}
-        background='light-1'
-        pad={{ horizontal: 'small' }}
-        style={{ maxWidth: '70vw', maxHeight: 384, overflow: 'auto' }}
-      >
-        <pre>
-          <code ref={(ref) => { this.ref = ref; }} className='json'>
-            {JSON.stringify(definitionToJson(data, schema), null, 2)}
-          </code>
-        </pre>
+      <Box flex={true}>
+        {label ? <Heading level={4} size='small'>{label}</Heading> : null}
+        <Box
+          background='light-1'
+          pad={{ horizontal: 'small' }}
+          style={{ maxWidth: '70vw', maxHeight: 384, overflow: 'auto' }}
+        >
+          <pre>
+            <code ref={(ref) => { this.ref = ref; }} className='json'>
+              {JSON.stringify(definitionToJson(data, schema), null, 2)}
+            </code>
+          </pre>
+        </Box>
       </Box>
     );
   }
@@ -85,7 +87,12 @@ const Response = ({
         />
       </Box>
     </Box>
-    <Schema data={data} schema={response.schema} />
+    {response.examples ?
+      Object.keys(response.examples).map(key =>
+        <Schema key={key} label={key} data={data} schema={response.examples[key]} />)
+      :
+      <Schema data={data} schema={response.schema} />
+    }
   </Box>
 );
 
