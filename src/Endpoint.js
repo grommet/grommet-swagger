@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import { findDOMNode } from 'react-dom';
+import PropTypes from 'prop-types';
 import hljs from 'highlight.js';
 import { Box, Heading, Markdown, Responsive, RoutedButton, Text } from 'grommet';
 import { LinkNext } from 'grommet-icons';
@@ -96,70 +97,98 @@ const Response = ({
   </Box>
 );
 
-const Method = ({
-  contextSearch, data, method, methodName, path, subPath,
+const Header = ({
+  data, executable, methodName, subPath,
 }) => (
-  <Box key={methodName}>
-    <Box>
-      <Heading level={2}>
-        <RoutedButton
-          path={`/execute${contextSearch}&${searchString({ path, subPath, methodName })}`}
-          fill={true}
-        >
-          <Box direction='row' align='center' wrap={true}>
-            <Box background='brand' pad={{ horizontal: 'medium', vertical: 'xsmall' }}>
-              <Text size='xlarge'>
-                <strong>{methodName.toUpperCase()}</strong>
-              </Text>
-            </Box>
-            <Box margin={{ horizontal: 'small' }}>
-              <Text size='xlarge' color='brand'>
-                {data.basePath}{subPath}
-              </Text>
-            </Box>
-            <LinkNext color='brand' />
-          </Box>
-        </RoutedButton>
-      </Heading>
-      <Markdown
-        content={(method.description || '').replace(new RegExp('</BR>', 'gi'), '\n\n')}
-      />
+  <Box direction='row' align='center' wrap={true}>
+    <Box background='brand' pad={{ horizontal: 'medium', vertical: 'xsmall' }}>
+      <Text size='xlarge'>
+        <strong>{methodName.toUpperCase()}</strong>
+      </Text>
     </Box>
-    <Box margin={{ bottom: 'medium' }}>
-      <Parameters
-        data={data}
-        label='Path Parameters'
-        parameters={(method.parameters || []).filter(p => p.in === 'path')}
-      />
-      <Parameters
-        data={data}
-        label='Query Parameters'
-        parameters={(method.parameters || []).filter(p => p.in === 'query')}
-      />
-      <Parameters
-        data={data}
-        label='Body Parameters'
-        parameters={(method.parameters || []).filter(p => p.in === 'body')}
-      />
-      <Heading level={2}>Responses</Heading>
-      {Object.keys(method.responses).map((responseName, index) => (
-        <Response
-          key={responseName}
-          data={data}
-          name={responseName}
-          response={method.responses[responseName]}
-          first={index === 0}
-        />
-      ))}
+    <Box margin={{ horizontal: 'small' }}>
+      <Text size='xlarge' color='brand'>
+        {data.basePath}{subPath}
+      </Text>
     </Box>
+    {executable ? <LinkNext color='brand' /> : null}
   </Box>
 );
 
-export default class extends Component {
+class Method extends Component {
+  render() {
+    const {
+      contextSearch, data, executable, method, methodName, path, subPath,
+    } = this.props;
+    let header = (
+      <Header
+        data={data}
+        subPath={subPath}
+        methodName={methodName}
+        executable={executable}
+      />
+    );
+    if (executable) {
+      header = (
+        <RoutedButton
+          path={executable ?
+            `/execute${contextSearch}&${searchString({ path, subPath, methodName })}`
+            : undefined}
+          fill={true}
+        >
+          {header}
+        </RoutedButton>
+      );
+    }
+    return (
+      <Box key={methodName}>
+        <Box>
+          <Heading level={2}>
+            {header}
+          </Heading>
+          <Markdown
+            content={(method.description || '').replace(new RegExp('</BR>', 'gi'), '\n\n')}
+          />
+        </Box>
+        <Box margin={{ bottom: 'medium' }}>
+          <Parameters
+            data={data}
+            label='Path Parameters'
+            parameters={(method.parameters || []).filter(p => p.in === 'path')}
+          />
+          <Parameters
+            data={data}
+            label='Query Parameters'
+            parameters={(method.parameters || []).filter(p => p.in === 'query')}
+          />
+          <Parameters
+            data={data}
+            label='Body Parameters'
+            parameters={(method.parameters || []).filter(p => p.in === 'body')}
+          />
+          <Heading level={2}>Responses</Heading>
+          {Object.keys(method.responses).map((responseName, index) => (
+            <Response
+              key={responseName}
+              data={data}
+              name={responseName}
+              response={method.responses[responseName]}
+              first={index === 0}
+            />
+          ))}
+        </Box>
+      </Box>
+    );
+  }
+}
+
+export default class Endpoint extends Component {
   state = { responsive: 'wide' };
 
   render() {
-    const { contextSearch, data, path } = this.props;
+    const {
+      contextSearch, data, executable, path,
+    } = this.props;
     const { responsive } = this.state;
     return (
       <Responsive
@@ -185,6 +214,7 @@ export default class extends Component {
                     key={methodName}
                     contextSearch={contextSearch}
                     data={data}
+                    executable={executable}
                     method={data.paths[subPath][methodName]}
                     methodName={methodName}
                     path={path}
@@ -198,3 +228,10 @@ export default class extends Component {
     );
   }
 }
+
+Endpoint.propTypes = {
+  contextSearch: PropTypes.object.isRequired,
+  data: PropTypes.object.isRequired,
+  executable: PropTypes.bool.isRequired,
+  path: PropTypes.string.isRequired,
+};

@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import { Redirect, Router, Route, Switch } from 'react-router-dom';
+import PropTypes from 'prop-types';
 import queryString from 'query-string';
 import { createBrowserHistory } from 'history';
 import jsyaml from 'js-yaml';
@@ -69,7 +70,7 @@ export default class GrommetSwagger extends Component {
   }
 
   render() {
-    const { background } = this.props;
+    const { background, executable } = this.props;
     const {
       contextSearch, data, error, history, loading, origin, theme, url,
     } = this.state;
@@ -129,6 +130,7 @@ export default class GrommetSwagger extends Component {
                 <Endpoint
                   contextSearch={contextSearch}
                   data={data}
+                  executable={executable}
                   path={path}
                 />
               );
@@ -167,3 +169,19 @@ export default class GrommetSwagger extends Component {
     );
   }
 }
+
+GrommetSwagger.propTypes = {
+  background: PropTypes.any,
+  executable: PropTypes.bool,
+  routePrefix: PropTypes.string,
+  theme: PropTypes.string,
+  url: PropTypes.string,
+};
+
+GrommetSwagger.defaultProps = {
+  background: undefined,
+  executable: true,
+  routePrefix: undefined,
+  theme: undefined,
+  url: undefined,
+};
