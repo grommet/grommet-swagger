@@ -9,13 +9,13 @@ export default class extends Component {
   constructor(props) {
     super(props);
     const {
-      data, methodName, origin, path, subPath,
+      data, methodName, origin, subPath,
     } = props;
     const defaultHeaders = {
       'Accept': data.consumes[0],
       'Content-Type': data.produces[0],
     };
-    const method = data.paths[path][methodName];
+    const method = data.paths[subPath][methodName];
     const bodyParameters = (method.parameters || []).filter(p => p.in === 'body');
     const queryParameters = (method.parameters || []).filter(p => p.in === 'query');
     const defaultValues = {};

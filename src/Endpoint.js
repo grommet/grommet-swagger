@@ -230,7 +230,7 @@ export default class Endpoint extends Component {
 }
 
 Endpoint.propTypes = {
-  contextSearch: PropTypes.object.isRequired,
+  contextSearch: PropTypes.string.isRequired,
   data: PropTypes.object.isRequired,
   executable: PropTypes.bool.isRequired,
   path: PropTypes.string.isRequired,
