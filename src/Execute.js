@@ -256,6 +256,7 @@ export default class extends Component {
 
                 {queryParameters.map(p => (
                   <Box
+                    key={p.name}
                     direction='row'
                     responsive={true}
                     justify='start'
@@ -266,7 +267,7 @@ export default class extends Component {
                       basis={responsive === 'wide' ? 'small' : undefined}
                       flex={false}
                     >
-                      <Button key={p.name} plain={true} onClick={this.appendUrl(p.name)}>
+                      <Button plain={true} onClick={this.appendUrl(p.name)}>
                         <Box align='start'>
                           <Text color='brand'><strong>{p.name}=</strong></Text>
                         </Box>

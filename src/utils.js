@@ -34,8 +34,10 @@ export const definitionToJson = (data, def, visited = {}) => {
     return result;
   } else if (definition.enum) {
     return definition.enum.join('|');
+  } else if (definition.type) {
+    return definition.type;
   }
-  return definition.type;
+  return definition;
 };
 
 export const searchString = obj =>
