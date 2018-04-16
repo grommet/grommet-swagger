@@ -1,13 +1,9 @@
 {
   "presets": [ "env", "stage-1", "react"],
   "plugins": [
-    "styled-components",
-    "transform-object-rest-spread"
+    "styled-components"
   ],
   "env": {
-    "development": {
-      "presets": ["react-hmre"]
-    },
     "production": {
       "plugins": ["grommet"]
     }

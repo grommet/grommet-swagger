@@ -47,10 +47,10 @@ const Parameter = ({ data, parameter, first }) => (
         </Heading>
       </Box>
       <Box flex={true} pad={{ horizontal: 'medium' }}>
-        <Markdown
-          content={(parameter.description || '')
+        <Markdown>
+          {(parameter.description || '')
             .replace(new RegExp('</BR>', 'gi'), '\n\n')}
-        />
+        </Markdown>
         {parameter.type !== 'string' ? <Text color='dark-5'>{parameter.type}</Text> : null}
         {parameter.required ? <Text color='dark-5'>required</Text> : null}
       </Box>
@@ -82,10 +82,10 @@ const Response = ({
         </Heading>
       </Box>
       <Box flex={true} pad={{ horizontal: 'medium' }}>
-        <Markdown
-          content={(response.description || '')
+        <Markdown>
+          {(response.description || '')
             .replace(new RegExp('</BR>', 'gi'), '\n\n')}
-        />
+        </Markdown>
       </Box>
     </Box>
     {response.examples ?
@@ -146,9 +146,9 @@ class Method extends Component {
           <Heading level={2}>
             {header}
           </Heading>
-          <Markdown
-            content={(method.description || '').replace(new RegExp('</BR>', 'gi'), '\n\n')}
-          />
+          <Markdown>
+            {(method.description || '').replace(new RegExp('</BR>', 'gi'), '\n\n')}
+          </Markdown>
         </Box>
         <Box margin={{ bottom: 'medium' }}>
           <Parameters

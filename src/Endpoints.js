@@ -31,7 +31,9 @@ export default class extends Component {
             <Box pad={{ vertical: 'xlarge' }}>
               <Heading level={1} margin='none'><strong>{data.info.title}</strong></Heading>
               <Box pad={{ vertical: 'large' }}>
-                <Markdown content={(data.info.description || '').replace(new RegExp('</BR>', 'gi'), '\n\n')} />
+                <Markdown>
+                  {(data.info.description || '').replace(new RegExp('</BR>', 'gi'), '\n\n')}
+                </Markdown>
               </Box>
             </Box>
             <Box direction='row' justify='between' align='center'>
