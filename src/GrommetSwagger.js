@@ -74,7 +74,7 @@ export default class GrommetSwagger extends Component {
     const {
       contextSearch, data: stateData, error, history, loading, origin, theme, url,
     } = this.state;
-    const data = { ...stateData, ...propsData };
+    const data = { ...propsData, ...stateData };
     let content;
     if (loading) {
       content = <Loading />;
