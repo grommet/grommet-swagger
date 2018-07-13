@@ -70,10 +70,11 @@ export default class GrommetSwagger extends Component {
   }
 
   render() {
-    const { background, executable } = this.props;
+    const { background, executable, data: propsData } = this.props;
     const {
-      contextSearch, data, error, history, loading, origin, theme, url,
+      contextSearch, data: stateData, error, history, loading, origin, theme, url,
     } = this.state;
+    const data = { ...stateData, ...propsData };
     let content;
     if (loading) {
       content = <Loading />;
