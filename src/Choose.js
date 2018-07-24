@@ -21,10 +21,11 @@ export default class Choose extends Component {
     return (
       <form onSubmit={this.onSubmit}>
         <Box
-          align='stretch'
+          align='start'
+          gap='medium'
           pad={{ horizontal: 'large', vertical: 'xlarge' }}
         >
-          <Box margin='medium' border='bottom'>
+          <Box border='bottom' alignSelf='stretch'>
             <TextInput
               placeholder='Swagger URL'
               size='xlarge'
@@ -33,26 +34,20 @@ export default class Choose extends Component {
               onInput={event => this.setState({ url: event.target.value })}
             />
           </Box>
-          <Box margin='medium'>
-            <Select
-              placeholder='Theme'
-              plain={true}
-              value={theme}
-              options={['grommet', 'hpe']}
-              onChange={event => this.setState({ theme: event.option })}
-            />
-          </Box>
-          <Box margin='medium'>
-            <Button
-              primary={true}
-              type='submit'
-              label='Load'
-              disabled={loading}
-            />
-          </Box>
-          <Box margin='medium'>
-            <Text color='status-critical' size='large'>{error}</Text>
-          </Box>
+          <Select
+            placeholder='Theme'
+            plain={true}
+            value={theme}
+            options={['grommet', 'hpe']}
+            onChange={event => this.setState({ theme: event.option })}
+          />
+          <Button
+            primary={true}
+            type='submit'
+            label='Load'
+            disabled={loading}
+          />
+          <Text color='status-critical' size='large'>{error}</Text>
         </Box>
       </form>
     );

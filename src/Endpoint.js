@@ -40,13 +40,13 @@ class Schema extends Component {
 
 const Parameter = ({ data, parameter, first }) => (
   <Box border={first ? 'horizontal' : 'bottom'} pad={{ vertical: 'medium' }}>
-    <Box direction='row' pad={{ bottom: 'small' }}>
-      <Box basis='small'>
+    <Box direction='row' pad={{ bottom: 'small' }} wrap={true}>
+      <Box basis={parameter.name.length > 30 ? 'large' : 'medium'} pad={{ right: 'medium' }}>
         <Heading level={3} size='small' margin='small'>
           <strong><code>{parameter.name}</code></strong>
         </Heading>
       </Box>
-      <Box flex={true} pad={{ horizontal: 'medium' }}>
+      <Box basis='medium' pad={{ right: 'medium' }}>
         <Markdown>
           {(parameter.description || '')
             .replace(new RegExp('</BR>', 'gi'), '\n\n')}
@@ -75,13 +75,13 @@ const Response = ({
   data, name, response, first,
 }) => (
   <Box border={first ? 'horizontal' : 'bottom'} pad={{ vertical: 'medium' }}>
-    <Box direction='row' pad={{ bottom: 'small' }}>
-      <Box basis='small'>
+    <Box direction='row' pad={{ bottom: 'small' }} align='start'>
+      <Box basis='xxsmall'>
         <Heading level={3} size='small' margin='small'>
           <strong><code>{name}</code></strong>
         </Heading>
       </Box>
-      <Box flex={true} pad={{ horizontal: 'medium' }}>
+      <Box flex={true} pad={{ horizontal: 'medium' }} margin={{ vertical: 'small' }}>
         <Markdown>
           {(response.description || '')
             .replace(new RegExp('</BR>', 'gi'), '\n\n')}
