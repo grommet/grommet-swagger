@@ -37,19 +37,35 @@ export default class GrommetSwagger extends Component {
     }
   }
 
+  getOrigin = (htmlHost, configHost, configUrl) => {
+    const parser = document.createElement('a');
+    parser.href = configUrl;
+    const origin = htmlHost || configHost || configUrl.origin;
+
+    if (origin.indexOf('http') === -1) {
+      // Swagger host is defined without protocol.
+      return `https://${origin}`;
+    }
+    return origin;
+  }
+
   onLoad = (url, theme) => {
     const { history } = this.state;
-    const parser = document.createElement('a');
-    parser.href = url;
     this.setState({
-      data: undefined, error: undefined, loading: true, origin: parser.origin, theme, url,
+      data: undefined, error: undefined, loading: true, theme, url,
     });
     fetch(url, { method: 'GET' })
       .then(response => response.text())
       .then(text => jsyaml.load(text))
       .then((data) => {
         document.title = data.info.title;
-        this.setState({ data, loading: false });
+        this.setState({
+          data,
+          loading: false,
+          // Prioritize API origin values
+          // HTML host property -> config file host key -> config file origin
+          origin: this.getOrigin(this.props.host, data.host, url),
+        });
       })
       .then(() => {
         if (!this.props.url) {
@@ -175,6 +191,7 @@ export default class GrommetSwagger extends Component {
 GrommetSwagger.propTypes = {
   background: PropTypes.any,
   executable: PropTypes.bool,
+  host: PropTypes.string,
   routePrefix: PropTypes.string,
   theme: PropTypes.string,
   url: PropTypes.string,
@@ -183,6 +200,7 @@ GrommetSwagger.propTypes = {
 GrommetSwagger.defaultProps = {
   background: undefined,
   executable: true,
+  host: undefined,
   routePrefix: undefined,
   theme: undefined,
   url: undefined,
