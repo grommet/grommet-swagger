@@ -148,12 +148,12 @@ class Method extends Component {
           </Heading>
           { method && method.summary &&
             <Markdown>
-              {(method.summary || '').replace(new RegExp('</BR>', 'gi'), '\n\n')}
+              {(method.summary).replace(new RegExp('</BR>', 'gi'), '\n\n')}
             </Markdown>
           }
           { method && method.description &&
             <Markdown>
-              {(method.description || '').replace(new RegExp('</BR>', 'gi'), '\n\n')}
+              {(method.description).replace(new RegExp('</BR>', 'gi'), '\n\n')}
             </Markdown>
           }
         </Box>
