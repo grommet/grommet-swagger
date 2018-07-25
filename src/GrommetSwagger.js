@@ -18,7 +18,8 @@ const THEMES = {
 export default class GrommetSwagger extends Component {
   constructor(props) {
     super(props);
-    const history = createBrowserHistory({ basename: props.routePrefix });
+    const options = props.routePrefix ? { basename: props.routePrefix } : undefined;
+    const history = createBrowserHistory(options);
     this.state = { history, loading: true, contextSearch: '?' };
   }
 
@@ -85,10 +86,10 @@ export default class GrommetSwagger extends Component {
             exact={true}
             path='/'
             render={() => {
-              if (!data && !this.props.url) {
+              if (!stateData && !this.props.url) {
                 return <Redirect to='/choose' />;
               }
-              if (data) {
+              if (stateData) {
                 return (
                   <Endpoints
                     background={background}
@@ -105,7 +106,7 @@ export default class GrommetSwagger extends Component {
           <Route
             path='/choose'
             render={() => {
-              if (data) {
+              if (stateData) {
                 return <Redirect to='/' />;
               }
               return (
@@ -122,7 +123,7 @@ export default class GrommetSwagger extends Component {
           <Route
             path='/endpoint'
             render={({ location: { search } }) => {
-              if (!data) {
+              if (!stateData) {
                 return <Redirect to={`/${contextSearch}`} />;
               }
               const { path } = queryString.parse(search);
@@ -140,7 +141,7 @@ export default class GrommetSwagger extends Component {
           <Route
             path='/execute'
             render={({ location: { search } }) => {
-              if (!data) {
+              if (!stateData) {
                 return <Redirect to={`/${contextSearch}`} />;
               }
               const { methodName, path, subPath } = queryString.parse(search);
