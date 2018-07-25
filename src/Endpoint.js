@@ -194,7 +194,7 @@ export default class Endpoint extends Component {
       <Responsive
         onChange={nextResponsive => this.setState({ responsive: nextResponsive })}
       >
-        <Box direction='row' justify='center' responsive={true}>
+        <Box direction='row-responsive' justify='center'>
           <Box
             basis={responsive === 'wide' ? 'xlarge' : undefined}
             flex='shrink'
