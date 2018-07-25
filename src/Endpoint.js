@@ -146,9 +146,16 @@ class Method extends Component {
           <Heading level={2}>
             {header}
           </Heading>
-          <Markdown>
-            {(method.description || '').replace(new RegExp('</BR>', 'gi'), '\n\n')}
-          </Markdown>
+          { method && method.summary &&
+            <Markdown>
+              {(method.summary || '').replace(new RegExp('</BR>', 'gi'), '\n\n')}
+            </Markdown>
+          }
+          { method && method.description &&
+            <Markdown>
+              {(method.description || '').replace(new RegExp('</BR>', 'gi'), '\n\n')}
+            </Markdown>
+          }
         </Box>
         <Box margin={{ bottom: 'medium' }}>
           <Parameters
