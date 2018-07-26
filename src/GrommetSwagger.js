@@ -40,7 +40,7 @@ export default class GrommetSwagger extends Component {
   getOrigin = (htmlHost, configHost, configUrl) => {
     const parser = document.createElement('a');
     parser.href = configUrl;
-    const origin = htmlHost || configHost || configUrl.origin;
+    const origin = htmlHost || configHost || parser.origin;
 
     if (origin.indexOf('http') === -1) {
       // Swagger host is defined without protocol.
