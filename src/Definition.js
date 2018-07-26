@@ -7,9 +7,9 @@ export default class Definition extends Component {
   state = { responsive: 'wide' };
 
   render() {
-    const { contextSearch, data, title } = this.props;
+    const { contextSearch, data, name } = this.props;
     const { responsive } = this.state;
-    const definitions = title && data.definitions && data.definitions[title];
+    const definitions = name && data.definitions && data.definitions[name];
     console.log(definitions);
     return (
       <Responsive
@@ -23,7 +23,7 @@ export default class Definition extends Component {
             style={{ minWidth: 0 }}
           >
             <Box pad={{ bottom: 'large' }} border='bottom'>
-              <Heading level={1} margin='none'>{title}</Heading>
+              <Heading level={1} margin='none'>{name}</Heading>
             </Box>
             <Box pad={{ vertical: 'medium' }}>
               { definitions && definitions.properties &&
@@ -52,8 +52,8 @@ export default class Definition extends Component {
   }
 }
 
-Endpoint.propTypes = {
+Definition.propTypes = {
   contextSearch: PropTypes.string.isRequired,
   data: PropTypes.object.isRequired,
-  title: PropTypes.string.isRequired,
+  name: PropTypes.string.isRequired,
 };
