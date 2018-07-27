@@ -96,11 +96,20 @@ const Response = ({
       </Box>
     </Box>
     {response.schema && parseSchemaName(response.schema.$ref) &&
-      <Box direction='column' align='start' pad={{ bottom: 'small' }}>
-        <RoutedAnchor
-          label={parseSchemaName(response.schema.$ref)}
-          path={`/definition/${parseSchemaName(response.schema.$ref).toLowerCase()}`}
-        />
+      <Box direction='row' align='center' pad={{ bottom: 'small' }} gap='xsmall'>
+        <Box>
+          <Text>Returns</Text>
+        </Box>
+        <Box direction='column'> {/* fixes link from spanning entire width */}
+          <pre>
+            <strong>
+              <RoutedAnchor
+                label={parseSchemaName(response.schema.$ref)}
+                path={`/definition?name=${parseSchemaName(response.schema.$ref).toLowerCase()}`}
+              />
+            </strong>
+          </pre>
+        </Box>
       </Box>
     }
     {response.examples ?
