@@ -10,6 +10,7 @@ import Endpoints from './Endpoints';
 import Endpoint from './Endpoint';
 import Execute from './Execute';
 import Loading from './Loading';
+import { filterHiddenPaths } from './utils';
 
 const THEMES = {
   hpe: hpeTheme,
@@ -57,6 +58,7 @@ export default class GrommetSwagger extends Component {
     fetch(url, { method: 'GET' })
       .then(response => response.text())
       .then(text => jsyaml.load(text))
+      .then(filterHiddenPaths)
       .then((data) => {
         document.title = data.info.title;
         this.setState({
