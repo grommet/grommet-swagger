@@ -73,6 +73,7 @@ const Parameters = ({ data, label, parameters }) => [
 
 
 const parseSchemaName = (ref) => {
+  if (!ref || ref.indexOf('/') === -1) return undefined;
   const name = ref.split('/');
   return name[name.length - 1];
 };
@@ -94,7 +95,7 @@ const Response = ({
         </Markdown>
       </Box>
     </Box>
-    {response.schema &&
+    {response.schema && parseSchemaName(response.schema.$ref) &&
       <Box direction='column' align='start' pad={{ bottom: 'small' }}>
         <RoutedAnchor
           label={parseSchemaName(response.schema.$ref)}
