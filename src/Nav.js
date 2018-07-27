@@ -15,7 +15,7 @@ export default ({ contextSearch, data }) => (
       </RoutedButton>
       {[...Object.keys(data.paths).reduce(
         (unique, path) =>
-          unique.add(path.replace(/([/\w+]+)\/{.*}/, '$1'))
+          unique.add(path.replace(/(\/[\w-_]+)\/.*/, '$1'))
           , new Set()
       )].map(path => (
         <RoutedButton
