@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
-import { Anchor, Box, Button, Heading, Markdown, Responsive } from 'grommet';
+import { Anchor, Box, Button, Heading, Responsive } from 'grommet';
 import { Eject as UnloadIcon } from 'grommet-icons';
+import Markdown from './Markdown';
 import Nav from './Nav';
 
 export default class extends Component {

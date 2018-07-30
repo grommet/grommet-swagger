@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { Box, Heading, Markdown, Responsive, Text } from 'grommet';
+import { Box, Heading, Responsive, Text } from 'grommet';
+import Markdown from './Markdown';
 import Nav from './Nav';
 
 export default class Definition extends Component {
