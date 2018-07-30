@@ -10,7 +10,6 @@ export default class Definition extends Component {
     const { contextSearch, data, name } = this.props;
     const { responsive } = this.state;
     const definitions = name && data.definitions && data.definitions[name];
-    console.log(definitions);
     return (
       <Responsive
         onChange={nextResponsive => this.setState({ responsive: nextResponsive })}
@@ -28,18 +27,24 @@ export default class Definition extends Component {
             <Box pad={{ vertical: 'medium' }}>
               { definitions && definitions.properties &&
                 Object.keys(definitions.properties).map(property => (
-                  <Box direction='row-responsive' key={property}>
-                    <Heading level={3} size='small' margin='small'>
-                      <strong><code>{property.toString()}</code></strong>
-                    </Heading>
-                    <Box basis='medium' pad={{ right: 'medium' }}>
+                  <Box
+                    key={property}
+                    direction='row-responsive'
+                    pad={{ vertical: 'medium' }}
+                    border='bottom'
+                  >
+                    <Box basis={property.length > 30 ? 'large' : 'medium'} pad={{ right: 'medium' }}>
+                      <Heading level={3} size='small' margin='small'>
+                        <strong><code>{property}</code></strong>
+                      </Heading>
+                    </Box>
+                    <Box basis='medium' pad={{ right: 'medium', bottom: 'medium' }}>
                       <Markdown>
-                        {` `} 
-                        {/* (parameter.description || '')
-                          .replace(new RegExp('</BR>', 'gi'), '\n\n') */}
+                        {(definitions.properties[property].description || '')
+                          .replace(new RegExp('</BR>', 'gi'), '\n\n')}
                       </Markdown>
-                      {/* parameter.type !== 'string' ? <Text color='dark-5'>{parameter.type}</Text> : null */}
-                      {/* parameter.required ? <Text color='dark-5'>required</Text> : null */}
+                      {definitions.properties[property].type !== 'string' ? <Text color='dark-5'>{definitions.properties[property].type}</Text> : null}
+                      {definitions.properties[property].required ? <Text color='dark-5'>required</Text> : null}
                     </Box>
                   </Box>))
               }

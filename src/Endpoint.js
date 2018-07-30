@@ -105,7 +105,7 @@ const Response = ({
             <strong>
               <RoutedAnchor
                 label={parseSchemaName(response.schema.$ref)}
-                path={`/definition?name=${parseSchemaName(response.schema.$ref).toLowerCase()}`}
+                path={`/definition?name=${parseSchemaName(response.schema.$ref)}`}
               />
             </strong>
           </pre>
