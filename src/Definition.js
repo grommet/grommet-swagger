@@ -4,6 +4,8 @@ import { Box, Heading, Responsive, Text } from 'grommet';
 import Markdown from './Markdown';
 import Nav from './Nav';
 
+const isRequired = (name, definitions) => definitions.find(singleName => name === singleName);
+
 export default class Definition extends Component {
   state = { responsive: 'wide' };
 
@@ -44,8 +46,8 @@ export default class Definition extends Component {
                         {(definitions.properties[property].description || '')
                           .replace(new RegExp('</BR>', 'gi'), '\n\n')}
                       </Markdown>
-                      {definitions.properties[property].type !== 'string' ? <Text color='dark-5'>{definitions.properties[property].type}</Text> : null}
-                      {definitions.properties[property].required ? <Text color='dark-5'>required</Text> : null}
+                      {definitions.properties[property].type ? <Text color='dark-5'>{definitions.properties[property].type}</Text> : null}
+                      {isRequired(property, definitions.required) ? <Text color='dark-5'>required</Text> : null}
                     </Box>
                   </Box>))
               }
