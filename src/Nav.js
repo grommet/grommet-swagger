@@ -13,7 +13,11 @@ export default ({ contextSearch, data }) => (
           <Text size='large'>{data.info.title}</Text>
         </Box>
       </RoutedButton>
-      {Object.keys(data.paths).sort().filter(path => path.split('/').length === 2).map(path => (
+      {[...Object.keys(data.paths).reduce(
+        (unique, path) =>
+          unique.add(path.replace(/(\/[\w-_]+)\/.*/, '$1'))
+          , new Set()
+      )].map(path => (
         <RoutedButton
           key={path}
           path={`/endpoint${contextSearch}&path=${encodeURIComponent(path)}`}
