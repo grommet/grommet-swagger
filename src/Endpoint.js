@@ -2,9 +2,8 @@ import React, { Component } from 'react';
 import { findDOMNode } from 'react-dom';
 import PropTypes from 'prop-types';
 import hljs from 'highlight.js';
-import { RoutedAnchor, Box, Heading, Responsive, RoutedButton, Text } from 'grommet';
+import { RoutedAnchor, Box, Heading, Markdown, Responsive, RoutedButton, Text } from 'grommet';
 import { LinkNext } from 'grommet-icons';
-import Markdown from './Markdown';
 import Nav from './Nav';
 import { definitionToJson, searchString } from './utils';
 

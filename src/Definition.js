@@ -1,7 +1,6 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { Box, Heading, Responsive, Text } from 'grommet';
-import Markdown from './Markdown';
+import { Box, Heading, Markdown, Responsive, Text } from 'grommet';
 import Nav from './Nav';
 
 const isRequired = (name, definitions) => definitions.find(singleName => name === singleName);
