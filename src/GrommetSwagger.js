@@ -158,9 +158,6 @@ export default class GrommetSwagger extends Component {
           <Route
             path='/definition'
             render={({ location: { search } }) => {
-              /* if (!stateData) {
-                return <Redirect to={`/${contextSearch}`} />;
-              } */
               const { name } = queryString.parse(search);
               window.scrollTo(0, 0);
               return (
