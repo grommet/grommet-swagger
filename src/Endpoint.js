@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import { findDOMNode } from 'react-dom';
 import PropTypes from 'prop-types';
 import hljs from 'highlight.js';
-import { Box, Heading, Markdown, Responsive, RoutedButton, Text } from 'grommet';
+import { RoutedAnchor, Box, Heading, Markdown, Responsive, RoutedButton, Text } from 'grommet';
 import { LinkNext } from 'grommet-icons';
 import Nav from './Nav';
 import { definitionToJson, searchString } from './utils';
@@ -71,6 +71,13 @@ const Parameters = ({ data, label, parameters }) => [
   )),
 ];
 
+
+const parseSchemaName = (ref) => {
+  if (!ref || ref.indexOf('/') === -1) return undefined;
+  const name = ref.split('/');
+  return name[name.length - 1];
+};
+
 const Response = ({
   data, name, response, first,
 }) => (
@@ -88,6 +95,18 @@ const Response = ({
         </Markdown>
       </Box>
     </Box>
+    {response.schema && parseSchemaName(response.schema.$ref) &&
+      <Box direction='column' align='end'>
+        <pre>
+          <strong>
+            <RoutedAnchor
+              label={parseSchemaName(response.schema.$ref)}
+              path={`/definition?name=${parseSchemaName(response.schema.$ref)}`}
+            />
+          </strong>
+        </pre>
+      </Box>
+    }
     {response.examples ?
       Object.keys(response.examples).map(key =>
         <Schema key={key} label={key} data={data} schema={response.examples[key]} />)

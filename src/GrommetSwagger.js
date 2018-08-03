@@ -10,6 +10,7 @@ import Endpoints from './Endpoints';
 import Endpoint from './Endpoint';
 import Execute from './Execute';
 import Loading from './Loading';
+import Definition from './Definition';
 
 const THEMES = {
   hpe: hpeTheme,
@@ -150,6 +151,20 @@ export default class GrommetSwagger extends Component {
                   data={data}
                   executable={executable}
                   path={path}
+                />
+              );
+            }}
+          />
+          <Route
+            path='/definition'
+            render={({ location: { search } }) => {
+              const { name } = queryString.parse(search);
+              window.scrollTo(0, 0);
+              return (
+                <Definition
+                  name={name}
+                  data={data}
+                  contextSearch={contextSearch}
                 />
               );
             }}
