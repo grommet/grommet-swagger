@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import { Anchor, Box, Button, Heading, Markdown, Responsive } from 'grommet';
 import { Eject as UnloadIcon } from 'grommet-icons';
+import { sanitizeForMarkdown } from './utils';
 import Nav from './Nav';
 
 export default class extends Component {
@@ -32,7 +33,7 @@ export default class extends Component {
               <Heading level={1} margin='none'><strong>{data.info.title}</strong></Heading>
               <Box pad={{ vertical: 'large' }}>
                 <Markdown>
-                  {(data.info.description || '').replace(new RegExp('</BR>', 'gi'), '\n\n')}
+                  {sanitizeForMarkdown(data.info.description)}
                 </Markdown>
               </Box>
             </Box>
