@@ -5,7 +5,7 @@ import hljs from 'highlight.js';
 import { RoutedAnchor, Box, Heading, Markdown, Responsive, RoutedButton, Text } from 'grommet';
 import { LinkNext } from 'grommet-icons';
 import Nav from './Nav';
-import { definitionToJson, searchString } from './utils';
+import { definitionToJson, sanitizeForMarkdown, searchString } from './utils';
 
 class Schema extends Component {
   componentDidMount() {
@@ -48,8 +48,7 @@ const Parameter = ({ data, parameter, first }) => (
       </Box>
       <Box basis='medium' pad={{ right: 'medium' }}>
         <Markdown>
-          {(parameter.description || '')
-            .replace(new RegExp('</BR>', 'gi'), '\n\n')}
+          {sanitizeForMarkdown(parameter.description)}
         </Markdown>
         {parameter.type !== 'string' ? <Text color='dark-5'>{parameter.type}</Text> : null}
         {parameter.required ? <Text color='dark-5'>required</Text> : null}
@@ -90,8 +89,7 @@ const Response = ({
       </Box>
       <Box flex={true} pad={{ horizontal: 'medium' }} margin={{ vertical: 'small' }}>
         <Markdown>
-          {(response.description || '')
-            .replace(new RegExp('</BR>', 'gi'), '\n\n')}
+          {sanitizeForMarkdown(response.description)}
         </Markdown>
       </Box>
     </Box>
@@ -167,12 +165,12 @@ class Method extends Component {
           </Heading>
           { method && method.summary &&
             <Markdown>
-              {(method.summary).replace(new RegExp('</BR>', 'gi'), '\n\n')}
+              {sanitizeForMarkdown(method.summary)}
             </Markdown>
           }
           { method && method.description &&
             <Markdown>
-              {(method.description).replace(new RegExp('</BR>', 'gi'), '\n\n')}
+              {sanitizeForMarkdown(method.description)}
             </Markdown>
           }
         </Box>

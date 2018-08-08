@@ -42,3 +42,23 @@ export const definitionToJson = (data, def, visited = {}) => {
 
 export const searchString = obj =>
   Object.keys(obj).map(name => `${name}=${encodeURIComponent(obj[name])}`).join('&');
+
+export const sanitizeForMarkdown = (stringForMd) => {
+  if (!stringForMd) {
+    return '';
+  }
+  let mdStringWithBreaks = stringForMd.replace(new RegExp('</BR>', 'gi'), '\n\n');
+  mdStringWithBreaks = mdStringWithBreaks.replace(new RegExp('\\n\\n', 'gi'), ' \n\n ');
+  console.log(JSON.stringify(mdStringWithBreaks));
+  const mdArray = mdStringWithBreaks.split(' ');
+  const cleanMdArray = mdArray.map((md) => {
+    // Avoid errors in situations like this - '_this should all style_, rest of the string...'
+    const actualString = md.replace(new RegExp('[.,]', 'g'), '');
+    if (actualString.indexOf('_') > 1 && actualString.indexOf('_') !== actualString.length - 1) {
+      // This is an underscore that is not preceeded by a space and should not be em styled.
+      return md.replace(new RegExp('_', 'gi'), '\\_');
+    }
+    return md;
+  });
+  return cleanMdArray.join(' ');
+};

@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { Box, Heading, Markdown, Responsive, Text } from 'grommet';
+import { sanitizeForMarkdown } from './utils';
 import Nav from './Nav';
 
 const isRequired = (name, definitions) => definitions.find(singleName => name === singleName);
@@ -42,8 +43,7 @@ export default class Definition extends Component {
                     </Box>
                     <Box basis='medium' pad={{ right: 'medium', bottom: 'medium' }}>
                       <Markdown>
-                        {(definitions.properties[property].description || '')
-                          .replace(new RegExp('</BR>', 'gi'), '\n\n')}
+                        {sanitizeForMarkdown(definitions.properties[property].description)}
                       </Markdown>
                       {definitions.properties[property].type ? <Text color='dark-5'>{definitions.properties[property].type}</Text> : null}
                       {isRequired(property, definitions.required) ? <Text color='dark-5'>required</Text> : null}
