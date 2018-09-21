@@ -39,7 +39,7 @@ module.exports = {
     rules: [
       {
         test: /\.js$/,
-        exclude: /node_modules/,
+        exclude: /markdown-to-jsx/,
         loader: 'babel-loader',
       },
     ],
