@@ -40,6 +40,20 @@ export const definitionToJson = (data, def, visited = {}) => {
   return definition;
 };
 
+export const filterHidden = paths =>
+  Object.keys(paths).reduce((visibleDefs, path) => {
+    const visibleRoutes = Object.keys(paths[path]).filter(method => !paths[path][method].tags || !paths[path][method].tags.includes('hidden'));
+    return {
+      ...visibleDefs,
+      ...visibleRoutes.length ? {
+        [path]: visibleRoutes.reduce((methods, method) =>
+          ({ ...methods, [method]: paths[path][method] }), {}),
+      } : {},
+    };
+  }, {});
+
+export const filterHiddenPaths = data => ({ ...data, paths: filterHidden(data.paths) });
+
 export const searchString = obj =>
   Object.keys(obj).map(name => `${name}=${encodeURIComponent(obj[name])}`).join('&');
 
