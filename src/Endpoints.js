@@ -1,54 +1,51 @@
 import React, { Component } from 'react';
-import { Anchor, Box, Button, Heading, Markdown, Responsive } from 'grommet';
+import { Anchor, Box, Button, Heading, Markdown, ResponsiveContext } from 'grommet';
 import { Eject as UnloadIcon } from 'grommet-icons';
 import { sanitizeForMarkdown } from './utils';
 import Nav from './Nav';
 
 export default class extends Component {
-  state = { responsive: 'wide' };
-
   render() {
     const {
       background, contextSearch, data, onUnload,
     } = this.props;
-    const { responsive } = this.state;
     return (
-      <Responsive
-        onChange={nextResponsive => this.setState({ responsive: nextResponsive })}
-      >
-        <Box
-          direction='row'
-          responsive={true}
-          justify='center'
-          background={background || 'neutral-1'}
-        >
+      <ResponsiveContext.Consumer>
+        {(responsive = 'wide') => (
           <Box
-            basis={responsive === 'wide' ? 'xlarge' : undefined}
-            flex='shrink'
-            justify='between'
-            pad='large'
-            style={{ minWidth: 0 }}
+            direction='row-responsive'
+            responsive={true}
+            justify='center'
+            background={background || 'neutral-1'}
           >
-            <Box pad={{ vertical: 'xlarge' }}>
-              <Heading level={1} margin='none'><strong>{data.info.title}</strong></Heading>
-              <Box pad={{ vertical: 'large' }}>
-                <Markdown>
-                  {sanitizeForMarkdown(data.info.description)}
-                </Markdown>
+            <Box
+              basis={responsive === 'wide' ? 'xlarge' : undefined}
+              flex='shrink'
+              justify='between'
+              pad='large'
+              style={{ minWidth: 0 }}
+            >
+              <Box pad={{ vertical: 'xlarge' }}>
+                <Heading level={1} margin='none'><strong>{data.info.title}</strong></Heading>
+                <Box pad={{ vertical: 'large' }}>
+                  <Markdown>
+                    {sanitizeForMarkdown(data.info.description)}
+                  </Markdown>
+                </Box>
+              </Box>
+              <Box direction='row' justify='between' align='center'>
+                <Anchor href={data.termsOfService} label='Terms of Service' />
+                {
+                  onUnload ?
+                    <Button icon={<UnloadIcon color='light-1' />} onClick={onUnload} /> :
+                    <span />
+                }
               </Box>
             </Box>
-            <Box direction='row' justify='between' align='center'>
-              <Anchor href={data.termsOfService} label='Terms of Service' />
-              {
-                onUnload ?
-                  <Button icon={<UnloadIcon color='light-1' />} onClick={onUnload} /> :
-                  <span />
-              }
-            </Box>
-          </Box>
-          <Nav contextSearch={contextSearch} data={data} />
-        </Box>
-      </Responsive>
+            <Nav contextSearch={contextSearch} data={data} />
+          </Box>)
+        }
+      </ResponsiveContext.Consumer>
     );
   }
 }

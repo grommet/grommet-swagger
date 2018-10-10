@@ -63,7 +63,6 @@ export const sanitizeForMarkdown = (stringForMd) => {
   }
   let mdStringWithBreaks = stringForMd.replace(new RegExp('</BR>', 'gi'), '\n\n');
   mdStringWithBreaks = mdStringWithBreaks.replace(new RegExp('\\n\\n', 'gi'), ' \n\n ');
-  console.log(JSON.stringify(mdStringWithBreaks));
   const mdArray = mdStringWithBreaks.split(' ');
   const cleanMdArray = mdArray.map((md) => {
     // Avoid errors in situations like this - '_this should all style_, rest of the string...'
