@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { findDOMNode } from 'react-dom';
 import hljs from 'highlight.js';
-import { Box, Button, Heading, Responsive, RoutedButton, Text, TextArea, TextInput } from 'grommet';
+import { Box, Button, Heading, ResponsiveContext, RoutedButton, Text, TextArea, TextInput } from 'grommet';
 import { LinkPrevious as BackIcon, FormDown, FormUp } from 'grommet-icons';
 import { definitionToJson } from './utils';
 
@@ -32,7 +32,6 @@ export default class extends Component {
       defaultHeaders,
       defaultValues,
       queryParameters,
-      responsive: 'wide',
       url: origin + data.basePath + subPath,
       values,
       valuesValid,
@@ -171,186 +170,185 @@ export default class extends Component {
     const { contextSearch, methodName, path } = this.props;
     const {
       bodyParameters, defaultHeaders, defaultValues, headers, headersValid,
-      queryParameters, response, responseText, responsive, showHeaders, state, url,
+      queryParameters, response, responseText, showHeaders, state, url,
       values, valuesValid,
     } = this.state;
     return (
-      <Responsive
-        onChange={nextResponsive => this.setState({ responsive: nextResponsive })}
-      >
-        <Box direction='row' justify='center'>
-          <Box basis='xlarge' full='horizontal'>
-            <Box margin='large'>
+      <ResponsiveContext.Consumer>
+        {(responsive = 'wide') => (
+          <Box direction='row' justify='center'>
+            <Box basis='xlarge' full='horizontal'>
+              <Box margin='large'>
 
-              <Box direction='row' justify='between' align='center' margin={{ bottom: 'large' }}>
-                <RoutedButton
-                  plain={true}
-                  path={`/endpoint${contextSearch}&path=${encodeURIComponent(path)}`}
-                >
-                  <Box direction='row' align='center'>
-                    <BackIcon color='brand' />
-                    <Box pad={{ horizontal: 'small' }}>
-                      <Text color='brand' size='large'>{path.substr(1)}</Text>
-                    </Box>
-                  </Box>
-                </RoutedButton>
-                <Button
-                  plain={true}
-                  onClick={() => this.setState({ showHeaders: !showHeaders })}
-                >
-                  <Box direction='row' align='center'>
-                    <Text color='brand'>headers</Text>
-                    <Box margin={{ left: 'xsmall' }}>
-                      {showHeaders ? <FormUp color='brand' /> : <FormDown color='brand' />}
-                    </Box>
-                  </Box>
-                </Button>
-              </Box>
-
-              <form
-                onSubmit={(event) => {
-                  event.preventDefault();
-                  this.send();
-                }}
-              >
-
-                {showHeaders && (
-                  <Box margin={{ bottom: 'large' }}>
-                    <Box direction='row' justify='between' align='center'>
-                      <Heading level={3} margin='none'>Headers</Heading>
-                      {headersValid ? <Text color='status-ok'>valid JSON</Text> :
-                      <Text color='status-critical'>invalid JSON</Text>}
-                      <Button
-                        onClick={() => {
-                          this.setState({ headers: JSON.stringify(defaultHeaders, null, 2) });
-                        }}
-                      >
-                        <Box pad='small'>
-                          <Text color='brand'>reset</Text>
-                        </Box>
-                      </Button>
-                    </Box>
-                    <TextArea rows={4} value={headers} onChange={this.setHeaders} />
-                  </Box>
-                )}
-
-                <Box
-                  direction='row'
-                  responsive={true}
-                  align={responsive === 'wide' ? 'center' : undefined}
-                  margin={{ bottom: 'medium' }}
-                >
-                  <Heading level={2} margin='none'>{methodName.toUpperCase()}</Heading>
-                  <Box
-                    flex={true}
-                    border={true}
-                    margin={responsive === 'wide' ? { left: 'small' } : undefined}
+                <Box direction='row' justify='between' align='center' margin={{ bottom: 'large' }}>
+                  <RoutedButton
+                    plain={true}
+                    path={`/endpoint${contextSearch}&path=${encodeURIComponent(path)}`}
                   >
-                    <TextInput
-                      plain={true}
-                      value={url}
-                      onInput={event => this.setState({ url: event.target.value })}
-                    />
-                  </Box>
+                    <Box direction='row' align='center'>
+                      <BackIcon color='brand' />
+                      <Box pad={{ horizontal: 'small' }}>
+                        <Text color='brand' size='large'>{path.substr(1)}</Text>
+                      </Box>
+                    </Box>
+                  </RoutedButton>
+                  <Button
+                    plain={true}
+                    onClick={() => this.setState({ showHeaders: !showHeaders })}
+                  >
+                    <Box direction='row' align='center'>
+                      <Text color='brand'>headers</Text>
+                      <Box margin={{ left: 'xsmall' }}>
+                        {showHeaders ? <FormUp color='brand' /> : <FormDown color='brand' />}
+                      </Box>
+                    </Box>
+                  </Button>
                 </Box>
 
-                {queryParameters.map(p => (
+                <form
+                  onSubmit={(event) => {
+                    event.preventDefault();
+                    this.send();
+                  }}
+                >
+
+                  {showHeaders && (
+                    <Box margin={{ bottom: 'large' }}>
+                      <Box direction='row' justify='between' align='center'>
+                        <Heading level={3} margin='none'>Headers</Heading>
+                        {headersValid ? <Text color='status-ok'>valid JSON</Text> :
+                        <Text color='status-critical'>invalid JSON</Text>}
+                        <Button
+                          onClick={() => {
+                            this.setState({ headers: JSON.stringify(defaultHeaders, null, 2) });
+                          }}
+                        >
+                          <Box pad='small'>
+                            <Text color='brand'>reset</Text>
+                          </Box>
+                        </Button>
+                      </Box>
+                      <TextArea rows={4} value={headers} onChange={this.setHeaders} />
+                    </Box>
+                  )}
+
                   <Box
-                    key={p.name}
                     direction='row'
                     responsive={true}
-                    justify='start'
-                    align='start'
-                    margin={{ bottom: 'xsmall' }}
+                    align={responsive === 'wide' ? 'center' : undefined}
+                    margin={{ bottom: 'medium' }}
                   >
+                    <Heading level={2} margin='none'>{methodName.toUpperCase()}</Heading>
                     <Box
-                      basis={responsive === 'wide' ? 'small' : undefined}
-                      flex={false}
+                      flex={true}
+                      border={true}
+                      margin={responsive === 'wide' ? { left: 'small' } : undefined}
                     >
-                      <Button plain={true} onClick={this.appendUrl(p.name)}>
-                        <Box align='start'>
-                          <Text color='brand'><strong>{p.name}=</strong></Text>
-                        </Box>
-                      </Button>
-                    </Box>
-                    <Box
-                      basis={responsive === 'wide' ? 'xsmall' : undefined}
-                      flex={false}
-                      margin={{ left: 'medium' }}
-                    >
-                      <Text>{p.type}</Text>
-                    </Box>
-                    <Box direction='row' wrap={true} flex={true}>
-                      {p.enum && p.enum.map(value => (
-                        <Button key={value} plain={true} onClick={this.appendUrl(p.name, value)}>
-                          <Box align='start' margin={{ left: 'medium' }}>
-                            <Text color='brand'><strong>{value}</strong></Text>
-                          </Box>
-                        </Button>
-                      ))}
-                      {p.items && p.items.enum && p.items.enum.map(value => (
-                        <Button key={value} plain={true} onClick={this.appendUrl(p.name, value)}>
-                          <Box align='start' margin={{ left: 'medium' }}>
-                            <Text color='brand'><strong>{value}</strong></Text>
-                          </Box>
-                        </Button>
-                      ))}
+                      <TextInput
+                        plain={true}
+                        value={url}
+                        onInput={event => this.setState({ url: event.target.value })}
+                      />
                     </Box>
                   </Box>
-                ))}
 
-                {bodyParameters.map(p => (
-                  <Box key={p.name}>
-                    <Box direction='row' justify='between' align='center'>
-                      <Heading level={3} margin='none'>{p.name}</Heading>
-                      {valuesValid[p.name] ? <Text color='status-ok'>valid JSON</Text> :
-                      <Text color='status-critical'>invalid JSON</Text>}
-                      <Button
-                        onClick={() => {
-                          this.setState({
-                            values: { ...values, [p.name]: defaultValues[p.name] },
-                            valuesValid: { ...valuesValid, [p.name]: true },
-                          });
-                        }}
+                  {queryParameters.map(p => (
+                    <Box
+                      key={p.name}
+                      direction='row'
+                      responsive={true}
+                      justify='start'
+                      align='start'
+                      margin={{ bottom: 'xsmall' }}
+                    >
+                      <Box
+                        basis={responsive === 'wide' ? 'small' : undefined}
+                        flex={false}
                       >
-                        <Box pad='small'>
-                          <Text color='brand'>reset</Text>
-                        </Box>
-                      </Button>
+                        <Button plain={true} onClick={this.appendUrl(p.name)}>
+                          <Box align='start'>
+                            <Text color='brand'><strong>{p.name}=</strong></Text>
+                          </Box>
+                        </Button>
+                      </Box>
+                      <Box
+                        basis={responsive === 'wide' ? 'xsmall' : undefined}
+                        flex={false}
+                        margin={{ left: 'medium' }}
+                      >
+                        <Text>{p.type}</Text>
+                      </Box>
+                      <Box direction='row' wrap={true} flex={true}>
+                        {p.enum && p.enum.map(value => (
+                          <Button key={value} plain={true} onClick={this.appendUrl(p.name, value)}>
+                            <Box align='start' margin={{ left: 'medium' }}>
+                              <Text color='brand'><strong>{value}</strong></Text>
+                            </Box>
+                          </Button>
+                        ))}
+                        {p.items && p.items.enum && p.items.enum.map(value => (
+                          <Button key={value} plain={true} onClick={this.appendUrl(p.name, value)}>
+                            <Box align='start' margin={{ left: 'medium' }}>
+                              <Text color='brand'><strong>{value}</strong></Text>
+                            </Box>
+                          </Button>
+                        ))}
+                      </Box>
                     </Box>
-                    <TextArea rows={8} value={values[p.name]} onChange={this.setBody(p.name)} />
-                  </Box>
-                ))}
+                  ))}
 
-                <Box margin={{ vertical: 'large' }}>
-                  <Button type='submit' primary={true} label='Send' />
+                  {bodyParameters.map(p => (
+                    <Box key={p.name}>
+                      <Box direction='row' justify='between' align='center'>
+                        <Heading level={3} margin='none'>{p.name}</Heading>
+                        {valuesValid[p.name] ? <Text color='status-ok'>valid JSON</Text> :
+                        <Text color='status-critical'>invalid JSON</Text>}
+                        <Button
+                          onClick={() => {
+                            this.setState({
+                              values: { ...values, [p.name]: defaultValues[p.name] },
+                              valuesValid: { ...valuesValid, [p.name]: true },
+                            });
+                          }}
+                        >
+                          <Box pad='small'>
+                            <Text color='brand'>reset</Text>
+                          </Box>
+                        </Button>
+                      </Box>
+                      <TextArea rows={8} value={values[p.name]} onChange={this.setBody(p.name)} />
+                    </Box>
+                  ))}
+
+                  <Box margin={{ vertical: 'large' }}>
+                    <Button type='submit' primary={true} label='Send' />
+                  </Box>
+                </form>
+
+                <Box direction='row' justify='between' align='center'>
+                  <Heading level={2} margin={{ bottom: 'medium', top: 'none' }}>Response</Heading>
+                  <Text>{state}</Text>
                 </Box>
-              </form>
-
-              <Box direction='row' justify='between' align='center'>
-                <Heading level={2} margin={{ bottom: 'medium', top: 'none' }}>Response</Heading>
-                <Text>{state}</Text>
-              </Box>
-              <Box background='light-2' pad='medium'>
-                { response ? (
-                  <Box>
-                    <Text>Status: {response.status} {response.statusText}</Text>
-                    <pre>
-                      <code
-                        ref={(ref) => { this.responseRef = ref; }}
-                        className='json'
-                        style={{ background: 'transparent', padding: 0 }}
-                      >
-                        {responseText}
-                      </code>
-                    </pre>
-                  </Box>
-                ) : null }
+                <Box background='light-2' pad='medium'>
+                  { response ? (
+                    <Box>
+                      <Text>Status: {response.status} {response.statusText}</Text>
+                      <pre>
+                        <code
+                          ref={(ref) => { this.responseRef = ref; }}
+                          className='json'
+                          style={{ background: 'transparent', padding: 0 }}
+                        >
+                          {responseText}
+                        </code>
+                      </pre>
+                    </Box>
+                  ) : null }
+                </Box>
               </Box>
             </Box>
-          </Box>
-        </Box>
-      </Responsive>
+          </Box>)}
+      </ResponsiveContext.Consumer>
     );
   }
 }
