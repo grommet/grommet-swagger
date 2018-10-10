@@ -11,7 +11,7 @@ export default class extends Component {
     } = this.props;
     return (
       <ResponsiveContext.Consumer>
-        {(responsive = 'wide') => console.log('responsive', responsive) || (
+        {(responsive = 'wide') => (
           <Box
             direction='row-responsive'
             responsive={true}
