@@ -6,7 +6,7 @@ export const getRef = (data, path) => {
     const element = parts.shift();
     if (element === '#') {
       node = data;
-    } else {
+    } else if (node[element]) {
       node = node[element];
     }
   }
