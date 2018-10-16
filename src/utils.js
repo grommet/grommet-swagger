@@ -14,6 +14,10 @@ export const getRef = (data, path) => {
 };
 
 export const definitionToJson = (data, def, visited = {}) => {
+  if (!def) {
+    return undefined;
+  }
+
   // avoid endless recursion
   const nextVisited = { ...visited };
   if (def.$ref) {
