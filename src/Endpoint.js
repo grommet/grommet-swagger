@@ -5,7 +5,7 @@ import hljs from 'highlight.js';
 import { RoutedAnchor, Box, Heading, Markdown, ResponsiveContext, RoutedButton, Text } from 'grommet';
 import { LinkNext } from 'grommet-icons';
 import Nav from './Nav';
-import { definitionToJson, sanitizeForMarkdown, searchString } from './utils';
+import { sanitizeForMarkdown, searchString } from './utils';
 
 class Schema extends Component {
   componentDidMount() {
@@ -15,7 +15,7 @@ class Schema extends Component {
   }
 
   render() {
-    const { data, label, schema } = this.props;
+    const { label, schema } = this.props;
     if (!schema) {
       return null;
     }
@@ -29,7 +29,7 @@ class Schema extends Component {
         >
           <pre>
             <code ref={(ref) => { this.ref = ref; }} className='json'>
-              {JSON.stringify(definitionToJson(data, schema), null, 2)}
+              {JSON.stringify(schema, null, 2)}
             </code>
           </pre>
         </Box>
@@ -105,6 +105,7 @@ const Response = ({
         </pre>
       </Box>
     }
+    {console.log(response)}
     {response.examples ?
       Object.keys(response.examples).map(key =>
         <Schema key={key} label={key} data={data} schema={response.examples[key]} />)

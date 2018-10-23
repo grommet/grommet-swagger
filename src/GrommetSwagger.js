@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import { Redirect, Router, Route, Switch } from 'react-router-dom';
 import PropTypes from 'prop-types';
+import SwaggerParser from 'swagger-parser';
 import queryString from 'query-string';
 import { createBrowserHistory } from 'history';
 import jsyaml from 'js-yaml';
@@ -60,14 +61,18 @@ export default class GrommetSwagger extends Component {
       .then(response => response.text())
       .then(text => jsyaml.load(text))
       .then(filterHiddenPaths)
-      .then((data) => {
-        document.title = data.info.title;
+      .then(data => SwaggerParser.validate(data)
+        .then(parsedSwagger => parsedSwagger)
+        .catch(err => console.log(err)))
+      .then((parsedSwagger) => {
+        document.title = parsedSwagger.info.title;
+        console.log(parsedSwagger);
         this.setState({
-          data,
+          data: parsedSwagger,
           loading: false,
           // Prioritize API origin values
           // HTML host property -> config file host key -> config file origin
-          origin: this.getOrigin(this.props.host, data.host, url),
+          origin: this.getOrigin(this.props.host, parsedSwagger.host, url),
         });
       })
       .then(() => {

@@ -53,7 +53,14 @@
   <script>
     function renderIt() {
       window.GrommetSwagger.mount('content', {
-        routePrefix: '/grommet-swagger'
+        routePrefix: '/',
+        url: 'https://gist.githubusercontent.com/karatechops/71f6e73e9eedbaf8425fd269ff5dd9b3/raw/ff97b2500d4e9a81ff55355333bd936d6be4a8d7/test.json',
+        theme: 'hpe',
+        termsOfService: 'https://google.com',
+        background: {
+          image: 'url(\'https://hpe-developer.8ar.ms/uploads/media/2018/9/ovgd-login-background-1538580038007.png\')',
+          dark: false
+        }
       });
       document.body.classList.remove('loading');
       document.body.style.margin = 0;
