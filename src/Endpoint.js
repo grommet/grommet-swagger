@@ -54,7 +54,7 @@ const Parameter = ({ data, parameter, first }) => (
         {parameter.required ? <Text color='dark-5'>required</Text> : null}
       </Box>
     </Box>
-    <Schema data={data} schema={parameter.schema} />
+    <Schema data={data} schema={parameter.schema ? parameter.schema.example : parameter.schema} />
   </Box>
 );
 
@@ -105,12 +105,11 @@ const Response = ({
         </pre>
       </Box>
     }
-    {console.log(response)}
     {response.examples ?
       Object.keys(response.examples).map(key =>
         <Schema key={key} label={key} data={data} schema={response.examples[key]} />)
       :
-      <Schema data={data} schema={response.schema} />
+      <Schema data={data} schema={response.schema ? response.schema.example : response.schema} />
     }
   </Box>
 );

@@ -66,7 +66,6 @@ export default class GrommetSwagger extends Component {
         .catch(err => console.log(err)))
       .then((parsedSwagger) => {
         document.title = parsedSwagger.info.title;
-        console.log(parsedSwagger);
         this.setState({
           data: parsedSwagger,
           loading: false,
