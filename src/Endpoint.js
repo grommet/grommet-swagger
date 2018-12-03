@@ -6,6 +6,7 @@ import { RoutedAnchor, Box, Heading, Markdown, ResponsiveContext, RoutedButton, 
 import { LinkNext } from 'grommet-icons';
 import Nav from './Nav';
 import { sanitizeForMarkdown, searchString } from './utils';
+import { connectableObservableDescriptor } from 'rxjs/observable/ConnectableObservable';
 
 class Schema extends Component {
   componentDidMount() {
@@ -54,7 +55,7 @@ const Parameter = ({ data, parameter, first }) => (
         {parameter.required ? <Text color='dark-5'>required</Text> : null}
       </Box>
     </Box>
-    <Schema data={data} schema={parameter.schema ? parameter.schema.example : parameter.schema} />
+    <Schema data={data} schema={parameter.schema ? parameter.schema.example : parameter} />
   </Box>
 );
 
@@ -70,6 +71,15 @@ const Parameters = ({ data, label, parameters }) => [
   )),
 ];
 
+const allofCheck = (res, data) => {
+  if (res.schema) {
+    if (res.schema.allOf) {
+      console.log('All of', res.schema.allOf);
+      Object.keys(res.schema).map(key =>
+        <Schema key={key} label={key} data={data} schema={res.schema[key]} />);
+    }
+  }
+};
 
 const parseSchemaName = (ref) => {
   if (!ref || ref.indexOf('/') === -1) return undefined;
@@ -104,6 +114,10 @@ const Response = ({
           </strong>
         </pre>
       </Box>
+    }
+    {response.schema ? console.log('example', response.schema.example) : console.log('notfound')}
+    {console.log('schema', response.schema)}
+    {console.log('response', response)
     }
     {response.examples ?
       Object.keys(response.examples).map(key =>
