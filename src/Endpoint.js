@@ -1,12 +1,11 @@
+import { RoutedAnchor, Box, Heading, Markdown, ResponsiveContext, RoutedButton, Text } from 'grommet';
 import React, { Component } from 'react';
 import { findDOMNode } from 'react-dom';
 import PropTypes from 'prop-types';
 import hljs from 'highlight.js';
-import { RoutedAnchor, Box, Heading, Markdown, ResponsiveContext, RoutedButton, Text } from 'grommet';
 import { LinkNext } from 'grommet-icons';
 import Nav from './Nav';
 import { sanitizeForMarkdown, searchString } from './utils';
-import { connectableObservableDescriptor } from 'rxjs/observable/ConnectableObservable';
 
 class Schema extends Component {
   componentDidMount() {
@@ -119,6 +118,7 @@ const Response = ({
     {console.log('schema', response.schema)}
     {console.log('response', response)
     }
+    {allofCheck(response, data)}
     {response.examples ?
       Object.keys(response.examples).map(key =>
         <Schema key={key} label={key} data={data} schema={response.examples[key]} />)
