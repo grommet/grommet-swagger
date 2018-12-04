@@ -61,8 +61,8 @@ export default class GrommetSwagger extends Component {
       .then(response => response.text())
       .then(text => jsyaml.load(text))
       .then(filterHiddenPaths)
-      .then(data => SwaggerParser.dereference(data)
-        .then(parsedSwagger => parsedSwagger)
+      .then(data => SwaggerParser.validate(data)
+        .then(parsedSwagger => console.log(parsedSwagger) || parsedSwagger)
         .catch(err => console.log(err)))
       .then((parsedSwagger) => {
         document.title = parsedSwagger.info.title;

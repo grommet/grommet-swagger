@@ -54,7 +54,10 @@ const Parameter = ({ data, parameter, first }) => (
         {parameter.required ? <Text color='dark-5'>required</Text> : null}
       </Box>
     </Box>
-    <Schema data={data} schema={parameter.schema ? parameter.schema.example : parameter} />
+    {console.log('parameter', parameter)}
+    {console.log('param schema', parameter.schema)}
+    {parameter.schema ? console.log('param example', parameter.schema.example) : console.log('param ex notfound')}
+    <Schema data={data} schema={parameter.schema ? parameter.schema.example : null} />
   </Box>
 );
 
@@ -70,14 +73,16 @@ const Parameters = ({ data, label, parameters }) => [
   )),
 ];
 
-const allofCheck = (res, data) => {
+
+const refCheck = (res) => {
   if (res.schema) {
-    if (res.schema.allOf) {
-      console.log('All of', res.schema.allOf);
-      Object.keys(res.schema).map(key =>
-        <Schema key={key} label={key} data={data} schema={res.schema[key]} />);
+    if (res.schema.example) {
+      return res.schema.example;
+    } else if (res.schema.allOf) {
+      return res.schema.allOf;
     }
   }
+  return res.schema;
 };
 
 const parseSchemaName = (ref) => {
@@ -114,16 +119,14 @@ const Response = ({
         </pre>
       </Box>
     }
-    {response.schema ? console.log('example', response.schema.example) : console.log('notfound')}
-    {console.log('schema', response.schema)}
-    {console.log('response', response)
-    }
-    {allofCheck(response, data)}
+    {console.log('response', response)}
+    {console.log('res schema', response.schema)}
+    {response.schema ? console.log('res example', response.schema.example) : console.log('res ex notfound')}
     {response.examples ?
       Object.keys(response.examples).map(key =>
         <Schema key={key} label={key} data={data} schema={response.examples[key]} />)
       :
-      <Schema data={data} schema={response.schema ? response.schema.example : response.schema} />
+      <Schema data={data} schema={refCheck(response)} />
     }
   </Box>
 );
@@ -151,6 +154,7 @@ class Method extends Component {
     const {
       contextSearch, data, executable, method, methodName, path, subPath,
     } = this.props;
+    console.log('METHOD', method);
     let header = (
       <Header
         data={data}
@@ -191,18 +195,8 @@ class Method extends Component {
         <Box margin={{ bottom: 'medium' }}>
           <Parameters
             data={data}
-            label='Path Parameters'
-            parameters={(method.parameters || []).filter(p => p.in === 'path')}
-          />
-          <Parameters
-            data={data}
-            label='Query Parameters'
-            parameters={(method.parameters || []).filter(p => p.in === 'query')}
-          />
-          <Parameters
-            data={data}
-            label='Body Parameters'
-            parameters={(method.parameters || []).filter(p => p.in === 'body')}
+            label='Parameters'
+            parameters={(method.parameters || []).filter(p => p.in)}
           />
           <Heading level={2}>Responses</Heading>
           {Object.keys(method.responses).map((responseName, index) => (
