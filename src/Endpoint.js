@@ -124,8 +124,6 @@ const Parameter = ({ data, parameter, first }) => (
 );
 
 const Parameters = ({ data, label, parameters }) => [
-  console.log('PARAMETERS', parameters),
-  console.log('LABEL', label),
   parameters.length > 0 ? <Heading key='heading' level={2}>{label}</Heading> : null,
   parameters.map((parameter, index) => (
     <Parameter
@@ -203,7 +201,6 @@ class Method extends Component {
     const {
       contextSearch, data, executable, method, methodName, path, subPath,
     } = this.props;
-    console.log('METHOD', method);
     let header = (
       <Header
         data={data}
