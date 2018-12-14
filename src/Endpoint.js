@@ -245,7 +245,7 @@ class Method extends Component {
           <Parameters
             data={data}
             label='Parameters'
-            parameters={method.parameters}
+            parameters={method.parameters || []}
           />
           <Heading level={2}>Responses</Heading>
           {Object.keys(method.responses).map((responseName, index) => (
