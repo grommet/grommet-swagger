@@ -47,10 +47,9 @@ const callExampleParser = (res) => {
           return parseExampleFromSchema(data.allOf, null, 'dive');
         }
         if (data.properties) {
-          Object.keys(data.properties).map((key) => {
-            return parseExampleFromSchema(data.properties[key], key, 'construct');
-          });
+          Object.keys(data.properties).map(key => parseExampleFromSchema(data.properties[key], key, 'construct'));
         }
+        return data;
       });
     }
     if (command === 'construct') {
@@ -68,6 +67,7 @@ const callExampleParser = (res) => {
                 return schemaProps;
               });
             }
+            return data;
           });
           example = { ...example, [keyName]: schemaProps };
         }
@@ -100,6 +100,7 @@ const getExample = (res) => {
   } else {
     return res.schema;
   }
+  return res;
 };
 
 const Parameter = ({ data, parameter, first }) => (
@@ -282,9 +283,7 @@ export default class Endpoint extends Component {
               </Box>
               {Object.keys(data.paths)
                 // everything that starts with the path we have
-                .filter((p) => {
-                  return (p === path || p.substr(0, path.length + 1) === `${path}/`);
-                })
+                .filter(p => (p === path || p.substr(0, path.length + 1) === `${path}/`))
                 .map(subPath =>
                   Object.keys(data.paths[subPath])
                   .map(methodName => (
