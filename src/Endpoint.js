@@ -38,6 +38,70 @@ class Schema extends Component {
   }
 }
 
+const callExampleParser = (res) => {
+  let example = {};
+  const parseExampleFromSchema = (schema, keyName, command) => {
+    if (command === 'dive') {
+      schema.map((data) => {
+        if (data.allOf) {
+          return parseExampleFromSchema(data.allOf, null, 'dive');
+        }
+        if (data.properties) {
+          Object.keys(data.properties).map((key) => {
+            return parseExampleFromSchema(data.properties[key], key, 'construct');
+          });
+        }
+      });
+    }
+    if (command === 'construct') {
+      if (schema.items) {
+        if (schema.items.allOf) {
+          let schemaProps = {};
+          schema.items.allOf.map((data) => {
+            if (data.properties) {
+              Object.keys(data.properties).map((key) => {
+                if (data.properties[key].type === 'array') {
+                  schemaProps = { ...schemaProps, [key]: [data.properties[key].type] };
+                } else {
+                  schemaProps = { ...schemaProps, [key]: data.properties[key].type };
+                }
+                return schemaProps;
+              });
+            }
+          });
+          example = { ...example, [keyName]: schemaProps };
+        }
+        if (schema.items.example) {
+          example = { ...example, [keyName]: schema.items.example };
+        }
+      } else if (schema.properties) {
+        let schemaProps = {};
+        Object.keys(schema.properties).map((key) => {
+          schemaProps = { ...schemaProps, [key]: schema.properties[key].type };
+          return schemaProps;
+        });
+        example = { ...example, [keyName]: schemaProps };
+      } else {
+        example = { ...example, [keyName]: schema.type };
+      }
+    }
+    return example;
+  };
+  return parseExampleFromSchema(res, null, 'dive');
+};
+
+const getExample = (res) => {
+  if (res.schema) {
+    if (res.schema.allOf) {
+      return callExampleParser(res.schema.allOf);
+    } else if (res.schema.example) {
+      return res.schema.example;
+    }
+  } else {
+    return res.schema;
+  }
+};
+
 const Parameter = ({ data, parameter, first }) => (
   <Box border={first ? 'horizontal' : 'bottom'} pad={{ vertical: 'medium' }}>
     <Box direction='row' pad={{ bottom: 'small' }} wrap={true}>
@@ -54,14 +118,13 @@ const Parameter = ({ data, parameter, first }) => (
         {parameter.required ? <Text color='dark-5'>required</Text> : null}
       </Box>
     </Box>
-    {console.log('parameter', parameter)}
-    {console.log('param schema', parameter.schema)}
-    {parameter.schema ? console.log('param example', parameter.schema.example) : console.log('param ex notfound')}
-    <Schema data={data} schema={parameter.schema ? parameter.schema.example : null} />
+    <Schema data={data} schema={getExample(parameter)} />
   </Box>
 );
 
 const Parameters = ({ data, label, parameters }) => [
+  console.log('PARAMETERS', parameters),
+  console.log('LABEL', label),
   parameters.length > 0 ? <Heading key='heading' level={2}>{label}</Heading> : null,
   parameters.map((parameter, index) => (
     <Parameter
@@ -72,18 +135,6 @@ const Parameters = ({ data, label, parameters }) => [
     />
   )),
 ];
-
-
-const refCheck = (res) => {
-  if (res.schema) {
-    if (res.schema.example) {
-      return res.schema.example;
-    } else if (res.schema.allOf) {
-      return res.schema.allOf;
-    }
-  }
-  return res.schema;
-};
 
 const parseSchemaName = (ref) => {
   if (!ref || ref.indexOf('/') === -1) return undefined;
@@ -119,14 +170,11 @@ const Response = ({
         </pre>
       </Box>
     }
-    {console.log('response', response)}
-    {console.log('res schema', response.schema)}
-    {response.schema ? console.log('res example', response.schema.example) : console.log('res ex notfound')}
     {response.examples ?
       Object.keys(response.examples).map(key =>
         <Schema key={key} label={key} data={data} schema={response.examples[key]} />)
       :
-      <Schema data={data} schema={refCheck(response)} />
+      <Schema data={data} schema={getExample(response)} />
     }
   </Box>
 );
@@ -234,7 +282,9 @@ export default class Endpoint extends Component {
               </Box>
               {Object.keys(data.paths)
                 // everything that starts with the path we have
-                .filter(p => (p === path || p.substr(0, path.length + 1) === `${path}/`))
+                .filter((p) => {
+                  return (p === path || p.substr(0, path.length + 1) === `${path}/`);
+                })
                 .map(subPath =>
                   Object.keys(data.paths[subPath])
                   .map(methodName => (
