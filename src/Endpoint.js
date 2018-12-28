@@ -38,64 +38,84 @@ class Schema extends Component {
   }
 }
 
-const callExampleParser = (res) => {
+const callParser = (res) => {
   let example = {};
-  const parseExampleFromSchema = (schema, keyName, command) => {
-    if (command === 'dive') {
-      schema.map((data) => {
-        if (data.allOf) {
-          return parseExampleFromSchema(data.allOf, null, 'dive');
-        }
-        if (data.properties) {
-          Object.keys(data.properties).map(key => parseExampleFromSchema(data.properties[key], key, 'construct'));
-        }
-        return data;
-      });
+  const parseExample = (schema, keyName) => {
+    if (schema.allOf) {
+      return schema.allOf.map(data => parseExample(data, null));
     }
-    if (command === 'construct') {
-      if (schema.items) {
-        if (schema.items.allOf) {
-          let schemaProps = {};
-          schema.items.allOf.map((data) => {
-            if (data.properties) {
-              Object.keys(data.properties).map((key) => {
-                if (data.properties[key].type === 'array') {
-                  schemaProps = { ...schemaProps, [key]: [data.properties[key].type] };
-                } else {
-                  schemaProps = { ...schemaProps, [key]: data.properties[key].type };
-                }
-                return schemaProps;
-              });
-            }
-            return data;
-          });
-          example = { ...example, [keyName]: schemaProps };
-        }
-        if (schema.items.example) {
-          example = { ...example, [keyName]: schema.items.example };
-        }
-      } else if (schema.properties) {
-        let schemaProps = {};
+    if (schema.example) {
+      example = { ...example, [keyName]: schema.example };
+      return example;
+    }
+    if (schema.properties) {
+      if (keyName) {
+        let chunk = {};
         Object.keys(schema.properties).map((key) => {
-          schemaProps = { ...schemaProps, [key]: schema.properties[key].type };
-          return schemaProps;
+          if (schema.properties[key].type === 'array' && schema.properties[key].items.properties) {
+            let nestedChunk = {};
+            Object.keys(schema.properties[key].items.properties).map((prop) => {
+              nestedChunk = {
+                ...nestedChunk, [prop]: schema.properties[key].items.properties[prop].type,
+              };
+              return prop;
+            });
+            chunk = { ...chunk, [key]: nestedChunk };
+            return chunk;
+          }
+          if (schema.properties[key].type === 'object' && schema.properties[key].properties) {
+            let nestedChunk = {};
+            Object.keys(schema.properties[key].properties).map((prop) => {
+              nestedChunk = {
+                ...nestedChunk, [prop]: schema.properties[key].properties[prop].type,
+              };
+              return prop;
+            });
+            chunk = { ...chunk, [key]: nestedChunk };
+            return chunk;
+          }
+          chunk = { ...chunk, [key]: schema.properties[key].type };
+          return chunk;
         });
-        example = { ...example, [keyName]: schemaProps };
-      } else {
-        example = { ...example, [keyName]: schema.type };
+        example = { ...example, [keyName]: chunk };
+        return example;
       }
+      return Object.keys(schema.properties)
+        .map(key => parseExample(schema.properties[key], key));
+    }
+    if (schema.items) {
+      if (schema.items.allOf) {
+        let chunk = {};
+        return schema.items.allOf.map((data) => {
+          if (data.properties) {
+            Object.keys(data.properties).map((key) => {
+              chunk = { ...chunk, [key]: data.properties[key].type };
+              return chunk;
+            });
+          }
+          example = { ...example, [keyName]: chunk };
+          return example;
+        });
+      }
+      return parseExample(schema.items, keyName);
+    }
+    if (!schema.properties && !schema.allOf) {
+      example = { ...example, [keyName]: schema.type };
+      return example;
     }
     return example;
   };
-  return parseExampleFromSchema(res, null, 'dive');
+  parseExample(res, null);
+  return example;
 };
 
 const getExample = (res) => {
   if (res.schema) {
-    if (res.schema.allOf) {
-      return callExampleParser(res.schema.allOf);
-    } else if (res.schema.example) {
+    if (res.schema.example) {
       return res.schema.example;
+    }
+    if (res.schema.allOf || res.schema.properties) {
+      return callParser(res.schema);
     }
   } else {
     return res.schema;
