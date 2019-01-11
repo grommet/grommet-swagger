@@ -40,19 +40,31 @@ class Schema extends Component {
 
 const callParser = (res) => {
   let example = {};
+  /* Params:
+    schema(Object) - response object
+    keyName(String) - tracks depth and postion of previous function call.
+      needed for properties that have arrays or, in some cases, objects as values.
+  */
   const parseExample = (schema, keyName) => {
+    // if allOf key exists then recurse
     if (schema.allOf) {
       return schema.allOf.map(data => parseExample(data, null));
     }
+    // if example key exists add to example object
     if (schema.example) {
       example = { ...example, [keyName]: schema.example };
       return example;
     }
     if (schema.properties) {
+      // if keyName has a value recurisve function has been called at least once.
       if (keyName) {
+        // temp value to add to example object
         let chunk = {};
         Object.keys(schema.properties).map((key) => {
+          // if object.type is 'array' and object.items.properties exists,
+          // nested values exist and need to be mapped through before adding to chunk.
           if (schema.properties[key].type === 'array' && schema.properties[key].items.properties) {
+            // temp value to add to chunk
             let nestedChunk = {};
             Object.keys(schema.properties[key].items.properties).map((prop) => {
               nestedChunk = {
@@ -63,6 +75,8 @@ const callParser = (res) => {
             chunk = { ...chunk, [key]: nestedChunk };
             return chunk;
           }
+          // if object.type is 'object' and object.properties exists,
+          // nested values exist and need to be mapped through before adding to chunk.
           if (schema.properties[key].type === 'object' && schema.properties[key].properties) {
             let nestedChunk = {};
             Object.keys(schema.properties[key].properties).map((prop) => {
@@ -74,19 +88,27 @@ const callParser = (res) => {
             chunk = { ...chunk, [key]: nestedChunk };
             return chunk;
           }
+          // if neither checks pass
           chunk = { ...chunk, [key]: schema.properties[key].type };
           return chunk;
         });
+        // once all checks have been made
+        // add to example object
         example = { ...example, [keyName]: chunk };
         return example;
       }
+      // if schema.properties exist but keyName is null
+      // map through properties and call recursive function on each
       return Object.keys(schema.properties)
         .map(key => parseExample(schema.properties[key], key));
     }
+
     if (schema.items) {
       if (schema.items.allOf) {
         let chunk = {};
         return schema.items.allOf.map((data) => {
+          // if items.allOf has properties key
+          // use properties for example object
           if (data.properties) {
             Object.keys(data.properties).map((key) => {
               chunk = { ...chunk, [key]: data.properties[key].type };
@@ -97,14 +119,17 @@ const callParser = (res) => {
           return example;
         });
       }
+      // if allOf.properties does not exist recurse
       return parseExample(schema.items, keyName);
     }
+    // end condition
     if (!schema.properties && !schema.allOf) {
       example = { ...example, [keyName]: schema.type };
       return example;
     }
     return example;
   };
+  // first call of recursive function
   parseExample(res, null);
   return example;
 };
