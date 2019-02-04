@@ -57,32 +57,44 @@ const callParser = (res) => {
       return example;
     }
     if (schema.properties) {
+      const schemaProps = schema.properties;
       // if keyName has a value recurisve function has been called at least once.
       if (keyName) {
-        // temp value to add to example object
+        // temp values to add to example object
         let chunk = {};
-        Object.keys(schema.properties).map((key) => {
+        let nestedChunk = {};
+        let joinedEnum = '';
+        Object.keys(schemaProps).map((key) => {
           // if object.type is 'array' and object.items.properties exists,
           // nested values exist and need to be mapped through before adding to chunk.
-          if (schema.properties[key].type === 'array' && schema.properties[key].items.properties) {
-            // temp value to add to chunk
-            let nestedChunk = {};
-            Object.keys(schema.properties[key].items.properties).map((prop) => {
+          if (schemaProps[key].type === 'array' && schemaProps[key].items.properties) {
+            nestedChunk = {};
+            Object.keys(schemaProps[key].items.properties).map((prop) => {
+              // if enum prop exists join and add to nested chunk instead of type.
+              if (schemaProps[key].items.properties[prop].enum) {
+                joinedEnum = schemaProps[key].items.properties[prop].enum.join('|');
+                nestedChunk = {
+                  ...nestedChunk, [prop]: joinedEnum,
+                };
+                return prop;
+              }
               nestedChunk = {
-                ...nestedChunk, [prop]: schema.properties[key].items.properties[prop].type,
+                ...nestedChunk, [prop]: schemaProps[key].items.properties[prop].type,
               };
               return prop;
             });
             chunk = { ...chunk, [key]: [nestedChunk] };
+
             return chunk;
           }
           // if object.type is 'object' and object.properties exists,
           // nested values exist and need to be mapped through before adding to chunk.
-          if (schema.properties[key].type === 'object' && schema.properties[key].properties) {
-            let nestedChunk = {};
-            Object.keys(schema.properties[key].properties).map((prop) => {
+          if (schemaProps[key].type === 'object' && schemaProps[key].properties) {
+            // temp value to add to chunk
+            nestedChunk = {};
+            Object.keys(schemaProps[key].properties).map((prop) => {
               nestedChunk = {
-                ...nestedChunk, [prop]: schema.properties[key].properties[prop].type,
+                ...nestedChunk, [prop]: schemaProps[key].properties[prop].type,
               };
               return prop;
             });
@@ -90,13 +102,13 @@ const callParser = (res) => {
             return chunk;
           }
           // check for enum property
-          if (schema.properties[key].enum) {
-            const joinedEnum = schema.properties[key].enum.join('|');
+          if (schemaProps[key].enum) {
+            joinedEnum = schemaProps[key].enum.join('|');
             chunk = { ...chunk, [key]: joinedEnum };
             return chunk;
           }
           // if neither checks pass
-          chunk = { ...chunk, [key]: schema.properties[key].type };
+          chunk = { ...chunk, [key]: schemaProps[key].type };
           return chunk;
         });
         // once all checks have been made
@@ -110,8 +122,13 @@ const callParser = (res) => {
       }
       // if schema.properties exist but keyName is null
       // map through properties and call recursive function on each
-      return Object.keys(schema.properties)
-        .map(key => parseExample(schema.properties[key], key, schema.properties[key].type));
+      return Object.keys(schemaProps)
+        .map(key => parseExample(schemaProps[key], key, schemaProps[key].type));
+    }
+    if (schema.enum) {
+      const joinedEnum = schema.enum.join('|');
+      example = { ...example, [keyName]: joinedEnum };
+      return example;
     }
     if (schema.items) {
       if (schema.items.allOf) {
