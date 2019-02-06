@@ -218,7 +218,7 @@ const parseSchemaName = (ref) => {
 };
 
 const Response = ({
-  data, name, response, first,
+  data, refs, name, response, first,
 }) => (
   <Box border={first ? 'horizontal' : 'bottom'} pad={{ vertical: 'medium' }}>
     <Box direction='row' pad={{ bottom: 'small' }} align='start'>
@@ -233,13 +233,14 @@ const Response = ({
         </Markdown>
       </Box>
     </Box>
-    {response.schema && parseSchemaName(response.schema.$ref) &&
-      <Box direction='column' align='end'>
+    {console.log(refs)}
+    {refs.schema && parseSchemaName(refs.schema.$ref) &&
+      <Box direction='column' align='start'>
         <pre>
           <strong>
             <RoutedAnchor
-              label={parseSchemaName(response.schema.$ref)}
-              path={`/definition?name=${parseSchemaName(response.schema.$ref)}`}
+              label={parseSchemaName(refs.schema.$ref)}
+              path={`/definition?name=${parseSchemaName(refs.schema.$ref)}`}
             />
           </strong>
         </pre>
@@ -275,7 +276,7 @@ const Header = ({
 class Method extends Component {
   render() {
     const {
-      contextSearch, data, executable, method, methodName, path, subPath,
+      contextSearch, data, refs, executable, method, methodName, path, subPath,
     } = this.props;
     let header = (
       <Header
@@ -325,6 +326,7 @@ class Method extends Component {
             <Response
               key={responseName}
               data={data}
+              refs={refs.paths[subPath][methodName].responses[responseName]}
               name={responseName}
               response={method.responses[responseName]}
               first={index === 0}
@@ -339,7 +341,7 @@ class Method extends Component {
 export default class Endpoint extends Component {
   render() {
     const {
-      contextSearch, data, executable, path,
+      contextSearch, data, refs, executable, path,
     } = this.props;
     return (
       <ResponsiveContext.Consumer>
@@ -364,6 +366,7 @@ export default class Endpoint extends Component {
                       key={methodName}
                       contextSearch={contextSearch}
                       data={data}
+                      refs={refs}
                       executable={executable}
                       method={data.paths[subPath][methodName]}
                       methodName={methodName}

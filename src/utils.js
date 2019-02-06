@@ -1,4 +1,6 @@
 
+export const deepClone = data => JSON.parse(JSON.stringify(data));
+
 export const getRef = (data, path) => {
   const parts = path.split('/');
   let node = data;
