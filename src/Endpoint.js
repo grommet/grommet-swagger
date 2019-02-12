@@ -234,15 +234,16 @@ const Response = ({
       </Box>
     </Box>
     {refs.schema && parseSchemaName(refs.schema.$ref) &&
-      <Box direction='column' align='start'>
-        <pre>
+      <Box direction='column' align='start' pad={{ bottom: 'medium' }}>
+        <Text>
+          {'returns '}
           <strong>
             <RoutedAnchor
               label={parseSchemaName(refs.schema.$ref)}
               path={`/definition?name=${parseSchemaName(refs.schema.$ref)}`}
             />
           </strong>
-        </pre>
+        </Text>
       </Box>
     }
     {response.examples ?
