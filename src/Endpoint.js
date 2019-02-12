@@ -233,7 +233,6 @@ const Response = ({
         </Markdown>
       </Box>
     </Box>
-    {console.log(refs)}
     {refs.schema && parseSchemaName(refs.schema.$ref) &&
       <Box direction='column' align='start'>
         <pre>
