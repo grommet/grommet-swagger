@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import { Redirect, Router, Route, Switch } from 'react-router-dom';
 import PropTypes from 'prop-types';
+import SwaggerParser from 'swagger-parser';
 import queryString from 'query-string';
 import { createBrowserHistory } from 'history';
 import jsyaml from 'js-yaml';
@@ -11,7 +12,7 @@ import Endpoint from './Endpoint';
 import Execute from './Execute';
 import Loading from './Loading';
 import Definition from './Definition';
-import { filterHiddenPaths } from './utils';
+import { filterHiddenPaths, deepClone } from './utils';
 
 const THEMES = {
   hpe: hpeTheme,
@@ -51,6 +52,11 @@ export default class GrommetSwagger extends Component {
     return origin;
   }
 
+  parserUtil = async (data) => {
+    const parsedRefs = await SwaggerParser.bundle(deepClone(data));
+    const parsedSwagger = await SwaggerParser.dereference(deepClone(data));
+    return { parsedSwagger, parsedRefs };
+  }
   onLoad = (url, theme) => {
     const { history } = this.state;
     this.setState({
@@ -60,14 +66,16 @@ export default class GrommetSwagger extends Component {
       .then(response => response.text())
       .then(text => jsyaml.load(text))
       .then(filterHiddenPaths)
-      .then((data) => {
-        document.title = data.info.title;
+      .then(data => this.parserUtil(data))
+      .then(({ parsedSwagger, parsedRefs }) => {
+        document.title = parsedSwagger.info.title;
         this.setState({
-          data,
+          data: parsedSwagger,
+          refs: parsedRefs,
           loading: false,
           // Prioritize API origin values
           // HTML host property -> config file host key -> config file origin
-          origin: this.getOrigin(this.props.host, data.host, url),
+          origin: this.getOrigin(this.props.host, parsedSwagger.host, url),
         });
       })
       .then(() => {
@@ -92,7 +100,7 @@ export default class GrommetSwagger extends Component {
   render() {
     const { background, executable, data: propsData } = this.props;
     const {
-      contextSearch, data: stateData, error, history, loading, origin, theme, url,
+      contextSearch, data: stateData, refs, error, history, loading, origin, theme, url,
     } = this.state;
     const data = { ...propsData, ...stateData };
     let content;
@@ -151,6 +159,7 @@ export default class GrommetSwagger extends Component {
                 <Endpoint
                   contextSearch={contextSearch}
                   data={data}
+                  refs={refs}
                   executable={executable}
                   path={path}
                 />

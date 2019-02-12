@@ -1,11 +1,12 @@
+import { RoutedAnchor, Box, Heading, Markdown, ResponsiveContext, RoutedButton, Text } from 'grommet';
 import React, { Component } from 'react';
 import { findDOMNode } from 'react-dom';
 import PropTypes from 'prop-types';
 import hljs from 'highlight.js';
-import { RoutedAnchor, Box, Heading, Markdown, ResponsiveContext, RoutedButton, Text } from 'grommet';
 import { LinkNext } from 'grommet-icons';
 import Nav from './Nav';
-import { definitionToJson, sanitizeForMarkdown, searchString } from './utils';
+import { sanitizeForMarkdown, searchString } from './utils';
+// import { SCHEMES } from 'uri-js';
 
 class Schema extends Component {
   componentDidMount() {
@@ -15,7 +16,7 @@ class Schema extends Component {
   }
 
   render() {
-    const { data, label, schema } = this.props;
+    const { label, schema } = this.props;
     if (!schema) {
       return null;
     }
@@ -29,7 +30,7 @@ class Schema extends Component {
         >
           <pre>
             <code ref={(ref) => { this.ref = ref; }} className='json'>
-              {JSON.stringify(definitionToJson(data, schema), null, 2)}
+              {JSON.stringify(schema, null, 2)}
             </code>
           </pre>
         </Box>
@@ -37,6 +38,146 @@ class Schema extends Component {
     );
   }
 }
+
+const callParser = (res) => {
+  let example = {};
+  /* Params:
+    schema(Object) - response object
+    keyName(String) - tracks depth and postion of previous function call.
+      needed for properties that have arrays or, in some cases, objects as values.
+  */
+  const parseExample = (schema, keyName, dataType) => {
+    // if allOf property exists then recurse
+    if (schema.allOf) {
+      return schema.allOf.map(data => parseExample(data, keyName, dataType));
+    }
+    // if example property exists add to example object
+    if (schema.example) {
+      example = { ...example, [keyName]: schema.example };
+      return example;
+    }
+    if (schema.properties) {
+      const schemaProps = schema.properties;
+      // if keyName has a value recurisve function has been called at least once.
+      if (keyName) {
+        // temp values to add to example object
+        let chunk = {};
+        let nestedChunk = {};
+        let joinedEnum = '';
+        Object.keys(schemaProps).map((key) => {
+          // if object.type is 'array' and object.items.properties exists,
+          // nested values exist and need to be mapped through before adding to chunk.
+          if (schemaProps[key].type === 'array' && schemaProps[key].items.properties) {
+            nestedChunk = {};
+            Object.keys(schemaProps[key].items.properties).map((prop) => {
+              // if enum prop exists join and add to nested chunk instead of type.
+              if (schemaProps[key].items.properties[prop].enum) {
+                joinedEnum = schemaProps[key].items.properties[prop].enum.join('|');
+                nestedChunk = {
+                  ...nestedChunk, [prop]: joinedEnum,
+                };
+                return prop;
+              }
+              nestedChunk = {
+                ...nestedChunk, [prop]: schemaProps[key].items.properties[prop].type,
+              };
+              return prop;
+            });
+            chunk = { ...chunk, [key]: [nestedChunk] };
+
+            return chunk;
+          }
+          // if object.type is 'object' and object.properties exists,
+          // nested values exist and need to be mapped through before adding to chunk.
+          if (schemaProps[key].type === 'object' && schemaProps[key].properties) {
+            // temp value to add to chunk
+            nestedChunk = {};
+            Object.keys(schemaProps[key].properties).map((prop) => {
+              nestedChunk = {
+                ...nestedChunk, [prop]: schemaProps[key].properties[prop].type,
+              };
+              return prop;
+            });
+            chunk = { ...chunk, [key]: nestedChunk };
+            return chunk;
+          }
+          // check for enum property
+          if (schemaProps[key].enum) {
+            joinedEnum = schemaProps[key].enum.join('|');
+            chunk = { ...chunk, [key]: joinedEnum };
+            return chunk;
+          }
+          // if neither checks pass
+          chunk = { ...chunk, [key]: schemaProps[key].type };
+          return chunk;
+        });
+        // once all checks have been made
+        // add to example object
+        if (dataType === 'array') {
+          example = { ...example, [keyName]: [chunk] };
+          return example;
+        }
+        example = { ...example, [keyName]: chunk };
+        return example;
+      }
+      // if schema.properties exist but keyName is null
+      // map through properties and call recursive function on each
+      return Object.keys(schemaProps)
+        .map(key => parseExample(schemaProps[key], key, schemaProps[key].type));
+    }
+    if (schema.enum) {
+      const joinedEnum = schema.enum.join('|');
+      example = { ...example, [keyName]: joinedEnum };
+      return example;
+    }
+    if (schema.items) {
+      if (schema.items.allOf) {
+        let chunk = {};
+        return schema.items.allOf.map((data) => {
+          // if items.allOf has properties key
+          // use properties for example object
+          if (data.properties) {
+            Object.keys(data.properties).map((key) => {
+              chunk = { ...chunk, [key]: data.properties[key].type };
+              return chunk;
+            });
+          }
+          example = { ...example, [keyName]: chunk };
+          return example;
+        });
+      }
+      // if allOf.properties does not exist recurse
+      return parseExample(schema.items, keyName, dataType);
+    }
+    // end condition
+    if (!schema.properties && !schema.allOf) {
+      if (dataType === 'array') {
+        example = { ...example, [keyName]: [schema.type] };
+        return example;
+      }
+      example = { ...example, [keyName]: schema.type };
+      return example;
+    }
+    return example;
+  };
+  // first call of recursive function
+  parseExample(res, null, null);
+  return example;
+};
+
+const getExample = (res) => {
+  if (res.schema) {
+    if (res.schema.example) {
+      return res.schema.example;
+    }
+    if (res.schema.allOf || res.schema.properties) {
+      return callParser(res.schema);
+    }
+  } else {
+    return res.schema;
+  }
+  return res;
+};
 
 const Parameter = ({ data, parameter, first }) => (
   <Box border={first ? 'horizontal' : 'bottom'} pad={{ vertical: 'medium' }}>
@@ -54,7 +195,7 @@ const Parameter = ({ data, parameter, first }) => (
         {parameter.required ? <Text color='dark-5'>required</Text> : null}
       </Box>
     </Box>
-    <Schema data={data} schema={parameter.schema} />
+    <Schema data={data} schema={getExample(parameter)} />
   </Box>
 );
 
@@ -70,7 +211,6 @@ const Parameters = ({ data, label, parameters }) => [
   )),
 ];
 
-
 const parseSchemaName = (ref) => {
   if (!ref || ref.indexOf('/') === -1) return undefined;
   const name = ref.split('/');
@@ -78,7 +218,7 @@ const parseSchemaName = (ref) => {
 };
 
 const Response = ({
-  data, name, response, first,
+  data, refs, name, response, first,
 }) => (
   <Box border={first ? 'horizontal' : 'bottom'} pad={{ vertical: 'medium' }}>
     <Box direction='row' pad={{ bottom: 'small' }} align='start'>
@@ -93,23 +233,24 @@ const Response = ({
         </Markdown>
       </Box>
     </Box>
-    {response.schema && parseSchemaName(response.schema.$ref) &&
-      <Box direction='column' align='end'>
-        <pre>
+    {refs.schema && parseSchemaName(refs.schema.$ref) &&
+      <Box direction='column' align='start' pad={{ bottom: 'medium' }}>
+        <Text>
+          {'returns '}
           <strong>
             <RoutedAnchor
-              label={parseSchemaName(response.schema.$ref)}
-              path={`/definition?name=${parseSchemaName(response.schema.$ref)}`}
+              label={parseSchemaName(refs.schema.$ref)}
+              path={`/definition?name=${parseSchemaName(refs.schema.$ref)}`}
             />
           </strong>
-        </pre>
+        </Text>
       </Box>
     }
     {response.examples ?
       Object.keys(response.examples).map(key =>
         <Schema key={key} label={key} data={data} schema={response.examples[key]} />)
       :
-      <Schema data={data} schema={response.schema} />
+      <Schema data={data} schema={getExample(response)} />
     }
   </Box>
 );
@@ -135,7 +276,7 @@ const Header = ({
 class Method extends Component {
   render() {
     const {
-      contextSearch, data, executable, method, methodName, path, subPath,
+      contextSearch, data, refs, executable, method, methodName, path, subPath,
     } = this.props;
     let header = (
       <Header
@@ -177,24 +318,15 @@ class Method extends Component {
         <Box margin={{ bottom: 'medium' }}>
           <Parameters
             data={data}
-            label='Path Parameters'
-            parameters={(method.parameters || []).filter(p => p.in === 'path')}
-          />
-          <Parameters
-            data={data}
-            label='Query Parameters'
-            parameters={(method.parameters || []).filter(p => p.in === 'query')}
-          />
-          <Parameters
-            data={data}
-            label='Body Parameters'
-            parameters={(method.parameters || []).filter(p => p.in === 'body')}
+            label='Parameters'
+            parameters={method.parameters || []}
           />
           <Heading level={2}>Responses</Heading>
           {Object.keys(method.responses).map((responseName, index) => (
             <Response
               key={responseName}
               data={data}
+              refs={refs.paths[subPath][methodName].responses[responseName]}
               name={responseName}
               response={method.responses[responseName]}
               first={index === 0}
@@ -209,7 +341,7 @@ class Method extends Component {
 export default class Endpoint extends Component {
   render() {
     const {
-      contextSearch, data, executable, path,
+      contextSearch, data, refs, executable, path,
     } = this.props;
     return (
       <ResponsiveContext.Consumer>
@@ -234,6 +366,7 @@ export default class Endpoint extends Component {
                       key={methodName}
                       contextSearch={contextSearch}
                       data={data}
+                      refs={refs}
                       executable={executable}
                       method={data.paths[subPath][methodName]}
                       methodName={methodName}
