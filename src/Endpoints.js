@@ -25,7 +25,7 @@ export default class extends Component {
               pad='large'
               style={{ minWidth: 0 }}
             >
-              <Box pad={{ vertical: 'xlarge' }}>
+              <Box pad={{ bottom: 'xlarge' }}>
                 <Heading level={1} margin='none'><strong>{data.info.title}</strong></Heading>
                 <Box pad={{ vertical: 'large' }}>
                   <Markdown>
