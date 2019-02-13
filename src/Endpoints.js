@@ -14,7 +14,15 @@ export default class extends Component {
         <Box pad={{ bottom: 'xlarge' }}>
           <Heading level={1} margin='none'><strong>{data.info.title}</strong></Heading>
           <Box pad={{ vertical: 'large' }}>
-            <Markdown>
+            <Markdown
+              components={{
+                pre: {
+                  props: {
+                    style: { maxWidth: '100%', overflowX: 'auto' },
+                  },
+                },
+              }}
+            >
               {sanitizeForMarkdown(data.info.description)}
             </Markdown>
           </Box>

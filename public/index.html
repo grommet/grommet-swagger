@@ -53,13 +53,7 @@
   <script>
     function renderIt() {
       window.GrommetSwagger.mount('content', {
-        routePrefix: '/',
-        url: 'https://raw.githubusercontent.com/HewlettPackard/hpe-onesphere-http/master/swagger.yml',
-        theme: 'hpe',
-        background: {
-          image: 'url(\'https://hpe-developer.8ar.ms/uploads/media/2018/9/ovgd-login-background-1538580038007.png\')',
-          dark: false
-        }
+        routePrefix: '/grommet-swagger',
       });
       document.body.classList.remove('loading');
       document.body.style.margin = 0;
