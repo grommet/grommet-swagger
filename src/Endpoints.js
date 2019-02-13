@@ -7,7 +7,7 @@ import WithNav from './WithNav';
 export default class extends Component {
   render() {
     const {
-      data, onUnload,
+      data, onUnload, termsOfService,
     } = this.props;
     return (
       <WithNav {...this.props}>
@@ -27,14 +27,16 @@ export default class extends Component {
             </Markdown>
           </Box>
         </Box>
-        <Box direction='row' justify='between' align='center'>
-          <Anchor href={data.termsOfService} label='Terms of Service' />
-          {
-            onUnload ?
-              <Button icon={<UnloadIcon color='light-1' />} onClick={onUnload} /> :
-              <span />
-          }
-        </Box>
+        {(termsOfService || (data.info && data.info.termsOfService)) &&
+          <Box direction='row' justify='between' align='center'>
+            <Anchor href={termsOfService || data.info.termsOfService} label='Terms of Service' />
+            {
+              onUnload ?
+                <Button icon={<UnloadIcon color='light-1' />} onClick={onUnload} /> :
+                <span />
+            }
+          </Box>
+        }
       </WithNav>);
   }
 }

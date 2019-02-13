@@ -99,7 +99,9 @@ export default class GrommetSwagger extends Component {
   }
 
   render() {
-    const { background, executable, data: propsData } = this.props;
+    const {
+      background, executable, data: propsData, termsOfService,
+    } = this.props;
     const {
       contextSearch, data: stateData, refs, error, history, loading, origin, theme, url,
     } = this.state;
@@ -125,6 +127,7 @@ export default class GrommetSwagger extends Component {
                     data={data}
                     theme={theme}
                     onUnload={!this.props.url ? this.onUnload : undefined}
+                    termsOfService={termsOfService}
                   />
                 );
               }
