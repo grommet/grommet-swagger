@@ -5,7 +5,8 @@ import SwaggerParser from 'swagger-parser';
 import queryString from 'query-string';
 import { createBrowserHistory } from 'history';
 import jsyaml from 'js-yaml';
-import { Grommet, hpe as hpeTheme } from 'grommet';
+import { Grommet } from 'grommet';
+import { hpe } from 'grommet-theme-hpe';
 import Choose from './Choose';
 import Endpoints from './Endpoints';
 import Endpoint from './Endpoint';
@@ -15,7 +16,7 @@ import Definition from './Definition';
 import { filterHiddenPaths, deepClone } from './utils';
 
 const THEMES = {
-  hpe: hpeTheme,
+  hpe,
 };
 
 export default class GrommetSwagger extends Component {
