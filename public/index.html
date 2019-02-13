@@ -53,7 +53,10 @@
   <script>
     function renderIt() {
       window.GrommetSwagger.mount('content', {
-        routePrefix: '/grommet-swagger'
+        routePrefix: '/grommet-swagger',
+      });
+      document.body.classList.remove('loading');
+      document.body.style.margin = 0;
     }
   </script>
 </head>

@@ -2,7 +2,7 @@ import React from 'react';
 import { Box, RoutedButton, Text } from 'grommet';
 
 export default ({ contextSearch, data }) => (
-  <Box flex={false} basis='medium'>
+  <Box flex='shrink' basis='medium'>
     <Box pad={{ vertical: 'large' }}>
       <RoutedButton
         key='api'
