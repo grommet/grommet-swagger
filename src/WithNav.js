@@ -28,7 +28,10 @@ const WithNav = ({
   </ResponsiveContext.Consumer>);
 
 WithNav.propTypes = {
-  background: PropTypes.string,
+  background: PropTypes.oneOfType([
+    PropTypes.shape({ image: PropTypes.string, dark: PropTypes.bool }),
+    PropTypes.string,
+  ]),
   children: PropTypes.node.isRequired,
   contextSearch: PropTypes.string,
   data: PropTypes.object,
