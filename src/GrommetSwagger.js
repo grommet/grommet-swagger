@@ -6,7 +6,7 @@ import queryString from 'query-string';
 import { createBrowserHistory } from 'history';
 import jsyaml from 'js-yaml';
 import { Grommet } from 'grommet';
-import { hpe } from 'grommet-theme-hpe';
+import hpe from './theme';
 import Choose from './Choose';
 import Endpoints from './Endpoints';
 import Endpoint from './Endpoint';

@@ -1,10 +1,10 @@
-import { RoutedAnchor, Box, Heading, Markdown, ResponsiveContext, RoutedButton, Text } from 'grommet';
+import { RoutedAnchor, Box, Heading, Markdown, RoutedButton, Text } from 'grommet';
 import React, { Component } from 'react';
 import { findDOMNode } from 'react-dom';
 import PropTypes from 'prop-types';
 import hljs from 'highlight.js';
 import { LinkNext } from 'grommet-icons';
-import Nav from './Nav';
+import WithNav from './WithNav';
 import { sanitizeForMarkdown, searchString } from './utils';
 // import { SCHEMES } from 'uri-js';
 
@@ -183,7 +183,7 @@ const Parameter = ({ data, parameter, first }) => (
   <Box border={first ? 'horizontal' : 'bottom'} pad={{ vertical: 'medium' }}>
     <Box direction='row' pad={{ bottom: 'small' }} wrap={true}>
       <Box basis={parameter.name.length > 30 ? 'large' : 'medium'} pad={{ right: 'medium' }}>
-        <Heading level={3} size='small' margin='small'>
+        <Heading level={3} size='small' margin={{ vertical: 'small' }}>
           <strong><code>{parameter.name}</code></strong>
         </Heading>
       </Box>
@@ -221,13 +221,13 @@ const Response = ({
   data, refs, name, response, first,
 }) => (
   <Box border={first ? 'horizontal' : 'bottom'} pad={{ vertical: 'medium' }}>
-    <Box direction='row' pad={{ bottom: 'small' }} align='start'>
+    <Box direction='row' pad={{ bottom: 'small' }} align='end'>
       <Box basis='xxsmall'>
-        <Heading level={3} size='small' margin='small'>
+        <Heading level={3} size='small' margin={{ vertical: 'small' }}>
           <strong><code>{name}</code></strong>
         </Heading>
       </Box>
-      <Box flex={true} pad={{ horizontal: 'medium' }} margin={{ vertical: 'small' }}>
+      <Box flex={true} pad={{ horizontal: 'small' }} margin={{ vertical: 'small' }}>
         <Markdown>
           {sanitizeForMarkdown(response.description)}
         </Markdown>
@@ -344,40 +344,29 @@ export default class Endpoint extends Component {
       contextSearch, data, refs, executable, path,
     } = this.props;
     return (
-      <ResponsiveContext.Consumer>
-        {(responsive = 'wide') => (
-          <Box direction='row-responsive' justify='center'>
-            <Box
-              basis={responsive === 'wide' ? 'xlarge' : undefined}
-              flex='shrink'
-              pad='large'
-              style={{ minWidth: 0 }}
-            >
-              <Box pad={{ bottom: 'large' }} border='bottom'>
-                <Heading level={1} margin='none'>{path.substr(1)}</Heading>
-              </Box>
-              {Object.keys(data.paths)
-                // everything that starts with the path we have
-                .filter(p => (p === path || p.substr(0, path.length + 1) === `${path}/`))
-                .map(subPath =>
-                  Object.keys(data.paths[subPath])
-                  .map(methodName => (
-                    <Method
-                      key={methodName}
-                      contextSearch={contextSearch}
-                      data={data}
-                      refs={refs}
-                      executable={executable}
-                      method={data.paths[subPath][methodName]}
-                      methodName={methodName}
-                      path={path}
-                      subPath={subPath}
-                    />
-                  )))}
-            </Box>
-            <Nav contextSearch={contextSearch} data={data} />
-          </Box>)}
-      </ResponsiveContext.Consumer>
+      <WithNav contextSearch={contextSearch} data={data}>
+        <Box pad={{ bottom: 'large' }} border='bottom'>
+          <Heading level={1} margin='none'>{path.substr(1)}</Heading>
+        </Box>
+        {Object.keys(data.paths)
+          // everything that starts with the path we have
+          .filter(p => (p === path || p.substr(0, path.length + 1) === `${path}/`))
+          .map(subPath =>
+            Object.keys(data.paths[subPath])
+            .map(methodName => (
+              <Method
+                key={methodName}
+                contextSearch={contextSearch}
+                data={data}
+                refs={refs}
+                executable={executable}
+                method={data.paths[subPath][methodName]}
+                methodName={methodName}
+                path={path}
+                subPath={subPath}
+              />
+            )))}
+      </WithNav>
     );
   }
 }
