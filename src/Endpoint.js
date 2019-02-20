@@ -182,7 +182,7 @@ const getExample = (res) => {
 const Parameter = ({ data, parameter, first }) => (
   <Box border={first ? 'horizontal' : 'bottom'} pad={{ vertical: 'medium' }}>
     <Box direction='row' pad={{ bottom: 'small' }} wrap={true}>
-      <Box basis={parameter.name.length > 30 ? 'large' : 'medium'} pad={{ right: 'medium' }}>
+      <Box basis={parameter.name && parameter.name.length > 30 ? 'large' : 'medium'} pad={{ right: 'medium' }}>
         <Heading level={3} size='small' margin={{ vertical: 'small' }}>
           <strong><code>{parameter.name}</code></strong>
         </Heading>
