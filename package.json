@@ -1,7 +1,7 @@
 {
   "name": "grommet-swagger",
   "version": "0.2.4",
-  "main": "src/index.js",
+  "main": "dist/grommet-swagger.min.js",
   "description": "API documentation via swagger",
   "repository": "https://github.com/grommet/grommet-swagger",
   "license": "Apache-2.0",
@@ -11,7 +11,8 @@
     "start": "webpack-dev-server --mode development --open",
     "start-alias": "cross-env USE_ALIAS=true webpack-dev-server --mode development --open",
     "lint": "eslint src",
-    "test": "jest"
+    "test": "jest",
+    "deploy": "npm run check && npm run build && npm publish"
   },
   "dependencies": {
     "@babel/polyfill": "^7.0.0",
