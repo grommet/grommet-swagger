@@ -266,7 +266,7 @@ const Header = ({
       </Box>
       <Box margin={{ horizontal: 'small' }}>
         <Text size='xlarge' color='brand'>
-          {data.basePath || data.servers[0].url}{subPath}
+          {data.basePath || (data.servers && data.servers.length > 0 && data.servers[0].url)}{subPath}
         </Text>
       </Box>
       {executable ? <LinkNext color='brand' /> : null}
