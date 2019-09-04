@@ -220,58 +220,58 @@ const parseSchemaName = (ref) => {
 const Response = ({
   data, refs, name, response, first,
 }) => (
-  <Box border={first ? 'horizontal' : 'bottom'} pad={{ vertical: 'medium' }}>
-    <Box direction='row' pad={{ bottom: 'small' }} align='end'>
-      <Box basis='xxsmall'>
-        <Heading level={3} size='small' margin={{ vertical: 'small' }}>
-          <strong><code>{name}</code></strong>
-        </Heading>
+    <Box border={first ? 'horizontal' : 'bottom'} pad={{ vertical: 'medium' }}>
+      <Box direction='row' pad={{ bottom: 'small' }} align='end'>
+        <Box basis='xxsmall'>
+          <Heading level={3} size='small' margin={{ vertical: 'small' }}>
+            <strong><code>{name}</code></strong>
+          </Heading>
+        </Box>
+        <Box flex={true} pad={{ horizontal: 'small' }} margin={{ vertical: 'small' }}>
+          <Markdown>
+            {sanitizeForMarkdown(response.description)}
+          </Markdown>
+        </Box>
       </Box>
-      <Box flex={true} pad={{ horizontal: 'small' }} margin={{ vertical: 'small' }}>
-        <Markdown>
-          {sanitizeForMarkdown(response.description)}
-        </Markdown>
-      </Box>
+      {refs.schema && parseSchemaName(refs.schema.$ref) &&
+        <Box direction='column' align='start' pad={{ bottom: 'medium' }}>
+          <Text>
+            {'returns '}
+            <strong>
+              <RoutedAnchor
+                label={parseSchemaName(refs.schema.$ref)}
+                path={`/definition?name=${parseSchemaName(refs.schema.$ref)}`}
+              />
+            </strong>
+          </Text>
+        </Box>
+      }
+      {response.examples ?
+        Object.keys(response.examples).map(key =>
+          <Schema key={key} label={key} data={data} schema={response.examples[key]} />)
+        :
+        <Schema data={data} schema={getExample(response)} />
+      }
     </Box>
-    {refs.schema && parseSchemaName(refs.schema.$ref) &&
-      <Box direction='column' align='start' pad={{ bottom: 'medium' }}>
-        <Text>
-          {'returns '}
-          <strong>
-            <RoutedAnchor
-              label={parseSchemaName(refs.schema.$ref)}
-              path={`/definition?name=${parseSchemaName(refs.schema.$ref)}`}
-            />
-          </strong>
-        </Text>
-      </Box>
-    }
-    {response.examples ?
-      Object.keys(response.examples).map(key =>
-        <Schema key={key} label={key} data={data} schema={response.examples[key]} />)
-      :
-      <Schema data={data} schema={getExample(response)} />
-    }
-  </Box>
-);
+  );
 
 const Header = ({
   data, executable, methodName, subPath,
 }) => (
-  <Box direction='row' align='center' wrap={true}>
-    <Box background='brand' pad={{ horizontal: 'medium', vertical: 'xsmall' }}>
-      <Text size='xlarge'>
-        <strong>{methodName.toUpperCase()}</strong>
-      </Text>
+    <Box direction='row' align='center' wrap={true}>
+      <Box background='brand' pad={{ horizontal: 'medium', vertical: 'xsmall' }}>
+        <Text size='xlarge'>
+          <strong>{methodName.toUpperCase()}</strong>
+        </Text>
+      </Box>
+      <Box margin={{ horizontal: 'small' }}>
+        <Text size='xlarge' color='brand'>
+          {data.basePath || data.servers[0].url}{subPath}
+        </Text>
+      </Box>
+      {executable ? <LinkNext color='brand' /> : null}
     </Box>
-    <Box margin={{ horizontal: 'small' }}>
-      <Text size='xlarge' color='brand'>
-        {data.basePath}{subPath}
-      </Text>
-    </Box>
-    {executable ? <LinkNext color='brand' /> : null}
-  </Box>
-);
+  );
 
 class Method extends Component {
   render() {
@@ -304,12 +304,12 @@ class Method extends Component {
           <Heading level={2}>
             {header}
           </Heading>
-          { method && method.summary &&
+          {method && method.summary &&
             <Markdown>
               {sanitizeForMarkdown(method.summary)}
             </Markdown>
           }
-          { method && method.description &&
+          {method && method.description &&
             <Markdown>
               {sanitizeForMarkdown(method.description)}
             </Markdown>
@@ -353,19 +353,19 @@ export default class Endpoint extends Component {
           .filter(p => (p === path || p.substr(0, path.length + 1) === `${path}/`))
           .map(subPath =>
             Object.keys(data.paths[subPath])
-            .map(methodName => (
-              <Method
-                key={methodName}
-                contextSearch={contextSearch}
-                data={data}
-                refs={refs}
-                executable={executable}
-                method={data.paths[subPath][methodName]}
-                methodName={methodName}
-                path={path}
-                subPath={subPath}
-              />
-            )))}
+              .map(methodName => (
+                <Method
+                  key={methodName}
+                  contextSearch={contextSearch}
+                  data={data}
+                  refs={refs}
+                  executable={executable}
+                  method={data.paths[subPath][methodName]}
+                  methodName={methodName}
+                  path={path}
+                  subPath={subPath}
+                />
+              )))}
       </WithNav>
     );
   }
