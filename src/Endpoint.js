@@ -1,11 +1,14 @@
-import { RoutedAnchor, Box, Heading, Markdown, RoutedButton, Text } from 'grommet';
+import { RoutedAnchor, Box, Heading, Markdown, RoutedButton, Text, Button } from 'grommet';
 import React, { Component } from 'react';
+import { withRouter } from 'react-router-dom';
 import { findDOMNode } from 'react-dom';
 import PropTypes from 'prop-types';
 import hljs from 'highlight.js';
-import { LinkNext } from 'grommet-icons';
+import { HashLink } from 'react-router-hash-link';
+import { LinkNext, Link as LinkIcon } from 'grommet-icons';
 import WithNav from './WithNav';
 import { sanitizeForMarkdown, searchString } from './utils';
+import { CopyButton, HeaderContainer } from './style';
 // import { SCHEMES } from 'uri-js';
 
 class Schema extends Component {
@@ -173,8 +176,15 @@ const getExample = (res) => {
     if (res.schema.allOf || res.schema.properties) {
       return callParser(res.schema);
     }
-  } else {
     return res.schema;
+  }
+  if (res.content) {
+    if (res.content['application/json']) {
+      return callParser(res.content['application/json'].schema);
+    }
+  }
+  if (res.description) {
+    return null;
   }
   return res;
 };
@@ -220,63 +230,76 @@ const parseSchemaName = (ref) => {
 const Response = ({
   data, refs, name, response, first,
 }) => (
-    <Box border={first ? 'horizontal' : 'bottom'} pad={{ vertical: 'medium' }}>
-      <Box direction='row' pad={{ bottom: 'small' }} align='end'>
-        <Box basis='xxsmall'>
-          <Heading level={3} size='small' margin={{ vertical: 'small' }}>
-            <strong><code>{name}</code></strong>
-          </Heading>
-        </Box>
-        <Box flex={true} pad={{ horizontal: 'small' }} margin={{ vertical: 'small' }}>
-          <Markdown>
-            {sanitizeForMarkdown(response.description)}
-          </Markdown>
-        </Box>
+  <Box border={first ? 'horizontal' : 'bottom'} pad={{ vertical: 'medium' }}>
+    <Box direction='row' pad={{ bottom: 'small' }} align='end'>
+      <Box basis='xxsmall'>
+        <Heading level={3} size='small' margin={{ vertical: 'small' }}>
+          <strong><code>{name}</code></strong>
+        </Heading>
       </Box>
-      {refs.schema && parseSchemaName(refs.schema.$ref) &&
-        <Box direction='column' align='start' pad={{ bottom: 'medium' }}>
-          <Text>
-            {'returns '}
-            <strong>
-              <RoutedAnchor
-                label={parseSchemaName(refs.schema.$ref)}
-                path={`/definition?name=${parseSchemaName(refs.schema.$ref)}`}
-              />
-            </strong>
-          </Text>
-        </Box>
-      }
-      {response.examples ?
-        Object.keys(response.examples).map(key =>
-          <Schema key={key} label={key} data={data} schema={response.examples[key]} />)
-        :
-        <Schema data={data} schema={getExample(response)} />
-      }
+      <Box flex={true} pad={{ horizontal: 'small' }} margin={{ vertical: 'small' }}>
+        <Markdown>
+          {sanitizeForMarkdown(response.description)}
+        </Markdown>
+      </Box>
     </Box>
-  );
+    {refs.schema && parseSchemaName(refs.schema.$ref) &&
+      <Box direction='column' align='start' pad={{ bottom: 'medium' }}>
+        <Text>
+          {'returns '}
+          <strong>
+            <RoutedAnchor
+              label={parseSchemaName(refs.schema.$ref)}
+              path={`/definition?name=${parseSchemaName(refs.schema.$ref)}`}
+            />
+          </strong>
+        </Text>
+      </Box>
+    }
+    {response.examples ?
+      Object.keys(response.examples).map(key =>
+        <Schema key={key} label={key} data={data} schema={response.examples[key]} />)
+      :
+      <Schema data={data} schema={getExample(response)} />
+    }
+  </Box>
+);
 
 const Header = ({
   data, executable, methodName, subPath,
 }) => (
-    <Box direction='row' align='center' wrap={true}>
-      <Box background='brand' pad={{ horizontal: 'medium', vertical: 'xsmall' }}>
-        <Text size='xlarge'>
-          <strong>{methodName.toUpperCase()}</strong>
-        </Text>
-      </Box>
-      <Box margin={{ horizontal: 'small' }}>
-        <Text size='xlarge' color='brand'>
-          {data.basePath || (data.servers && data.servers.length > 0 && data.servers[0].url)}{subPath}
-        </Text>
-      </Box>
-      {executable ? <LinkNext color='brand' /> : null}
+  <Box direction='row' align='center' wrap={true}>
+    <Box background='brand' pad={{ horizontal: 'medium', vertical: 'xsmall' }}>
+      <Text size='xlarge'>
+        <strong>{methodName.toUpperCase()}</strong>
+      </Text>
     </Box>
-  );
+    <Box margin={{ horizontal: 'small' }}>
+      <Text size='xlarge' color='brand'>
+        {data.basePath || (data.servers && data.servers.length > 0 && data.servers[0].url)}{subPath}
+      </Text>
+    </Box>
+    {executable ? <LinkNext color='brand' /> : null}
+  </Box>
+);
 
 class Method extends Component {
+  componentDidMount() {
+    const baseURI = window.location.href.split('#');
+    const elementId = decodeURI(`${baseURI[1]}`);
+    const element = document.getElementById(elementId);
+    return element ? element.scrollIntoView() : null;
+  }
   render() {
+    const hashLink = (e, methodName, subPath, history) => {
+      const { pathname, search } = history.location;
+      e.preventDefault();
+      const hash = `#${methodName}${subPath}`;
+      const path = `${pathname}${search}${encodeURI(hash)}`;
+      history.push(path);
+    };
     const {
-      contextSearch, data, refs, executable, method, methodName, path, subPath,
+      contextSearch, data, refs, executable, method, methodName, path, subPath, history,
     } = this.props;
     let header = (
       <Header
@@ -299,11 +322,22 @@ class Method extends Component {
       );
     }
     return (
-      <Box key={methodName}>
+      <Box key={methodName} id={`${methodName}${subPath}`}>
         <Box>
-          <Heading level={2}>
-            {header}
-          </Heading>
+          <HeaderContainer direction='row'>
+            <CopyButton>
+              <HashLink to={`#${methodName}${subPath}`}>
+                <Button
+                  a11yTitle='Copy'
+                  icon={<LinkIcon />}
+                  onClick={e => hashLink(e, methodName, subPath, history)}
+                />
+              </HashLink>
+            </CopyButton>
+            <Heading level={2}>
+              {header}
+            </Heading>
+          </HeaderContainer>
           {method && method.summary &&
             <Markdown>
               {sanitizeForMarkdown(method.summary)}
@@ -338,10 +372,10 @@ class Method extends Component {
   }
 }
 
-export default class Endpoint extends Component {
+class Endpoint extends Component {
   render() {
     const {
-      contextSearch, data, refs, executable, path,
+      contextSearch, data, refs, executable, path, history,
     } = this.props;
     return (
       <WithNav contextSearch={contextSearch} data={data}>
@@ -364,12 +398,15 @@ export default class Endpoint extends Component {
                   methodName={methodName}
                   path={path}
                   subPath={subPath}
+                  history={history}
                 />
               )))}
       </WithNav>
     );
   }
 }
+
+export default withRouter(Endpoint);
 
 Endpoint.propTypes = {
   contextSearch: PropTypes.string.isRequired,

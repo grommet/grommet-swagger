@@ -179,7 +179,6 @@ export default class extends Component {
           <Box direction='row' justify='center'>
             <Box basis='xlarge' full='horizontal'>
               <Box margin='large'>
-
                 <Box direction='row' justify='between' align='center' margin={{ bottom: 'large' }}>
                   <RoutedButton
                     plain={true}

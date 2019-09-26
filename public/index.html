@@ -10,7 +10,7 @@
   <meta name="mobile-web-app-capable" content="yes">
   <link rel="shortcut icon" type="image/png" href="img/shortcut-icon.png" />
   <link rel="apple-touch-icon" sizes="196x196" type="image/png" href="img/mobile-app-icon.png">
-  <link rel="stylesheet" href="github.css">
+
   <style>
     body { margin: 0 }
     body.loading #content {
@@ -55,6 +55,9 @@
     function renderIt() {
       window.GrommetSwagger.mount('content', {
         routePrefix: '/grommet-swagger',
+        url: 'https://raw.githubusercontent.com/hpe-storage/container-storage-provider/master/nimble-storage/nimble-csp-api.json',
+        executable: false,
+        theme: 'hpe',
       });
       document.body.classList.remove('loading');
       document.body.style.margin = 0;
@@ -92,6 +95,6 @@
     }, 100)
     </script>
   </div>
-  <script src="grommet-swagger.min.js" onload="renderIt()"></script>
+  <script src="/grommet-swagger.min.js" onload="renderIt()"></script>
 </body>
 </html>
