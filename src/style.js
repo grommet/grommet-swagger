@@ -13,7 +13,7 @@ export const CopyButton = styled(Box)`
   right: 0;
   visibility: visible;
 
-  @media only screen and (min-width: 768px) {
+  @media only screen and (min-width: ${props => props.breakpoint}) {
     top: 26px;
     left: -50px;
     visibility: hidden;

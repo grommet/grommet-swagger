@@ -1,4 +1,4 @@
-import { RoutedAnchor, Box, Heading, Markdown, RoutedButton, Text, Button } from 'grommet';
+import { RoutedAnchor, Box, Heading, Markdown, RoutedButton, Text, Button, ThemeContext } from 'grommet';
 import React, { Component } from 'react';
 import { withRouter } from 'react-router-dom';
 import { findDOMNode } from 'react-dom';
@@ -265,6 +265,13 @@ const Response = ({
   </Box>
 );
 
+const getPath = (spec, data) => {
+  if (spec >= '3.0.1') {
+    return data.servers.length > 0 && data.servers[0].url;
+  }
+  return data.basePath;
+};
+
 const Header = ({
   data, executable, methodName, subPath,
 }) => (
@@ -276,7 +283,7 @@ const Header = ({
     </Box>
     <Box margin={{ horizontal: 'small' }}>
       <Text size='xlarge' color='brand'>
-        {data.basePath || (data.servers && data.servers.length > 0 && data.servers[0].url)}{subPath}
+        {getPath(data.openapi, data)}{subPath}
       </Text>
     </Box>
     {executable ? <LinkNext color='brand' /> : null}
@@ -285,10 +292,13 @@ const Header = ({
 
 class Method extends Component {
   componentDidMount() {
-    const baseURI = window.location.href.split('#');
-    const elementId = decodeURI(`${baseURI[1]}`);
-    const element = document.getElementById(elementId);
-    return element ? element.scrollIntoView() : null;
+    if (typeof window !== 'undefined') {
+      const baseURI = window.location.href.split('#');
+      const elementId = decodeURI(`${baseURI[1]}`);
+      const element = document.getElementById(elementId);
+      return element ? element.scrollIntoView() : null;
+    }
+    return null;
   }
   render() {
     const hashLink = (e, methodName, subPath, history) => {
@@ -325,15 +335,17 @@ class Method extends Component {
       <Box key={methodName} id={`${methodName}${subPath}`}>
         <Box>
           <HeaderContainer direction='row'>
-            <CopyButton>
-              <HashLink to={`#${methodName}${subPath}`}>
-                <Button
-                  a11yTitle='Copy'
-                  icon={<LinkIcon />}
-                  onClick={e => hashLink(e, methodName, subPath, history)}
-                />
-              </HashLink>
-            </CopyButton>
+            <ThemeContext.Consumer>{themeData => (
+              <CopyButton breakpoint={`${themeData.global.breakpoints.small.value}px`}>
+                <HashLink to={`#${methodName}${subPath}`}>
+                  <Button
+                    a11yTitle='Copy'
+                    icon={<LinkIcon />}
+                    onClick={e => hashLink(e, methodName, subPath, history)}
+                  />
+                </HashLink>
+              </CopyButton>)}
+            </ThemeContext.Consumer>
             <Heading level={2}>
               {header}
             </Heading>
