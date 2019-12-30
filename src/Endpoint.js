@@ -1,4 +1,4 @@
-import { RoutedAnchor, Box, Heading, Markdown, RoutedButton, Text, Button, ThemeContext } from 'grommet';
+import { RoutedAnchor, Box, Heading, Markdown, RoutedButton, Text, Button, ThemeContext, Tab, Tabs } from 'grommet';
 import React, { Component } from 'react';
 import { withRouter } from 'react-router-dom';
 import { findDOMNode } from 'react-dom';
@@ -61,7 +61,7 @@ const callParser = (res) => {
     }
     if (schema.properties) {
       const schemaProps = schema.properties;
-      // if keyName has a value recurisve function has been called at least once.
+      // if keyName has a value recursive function has been called at least once.
       if (keyName) {
         // temp values to add to example object
         let chunk = {};
@@ -189,6 +189,24 @@ const getExample = (res) => {
   return res;
 };
 
+const getSchema = (res) => {
+  if (res.schema) {
+    if (res.schema.example) {
+      return res.schema.example;
+    }
+    return res.schema;
+  }
+  if (res.content) {
+    if (res.content['application/json']) {
+      return res.content['application/json'].schema.properties;
+    }
+  }
+  if (res.description) {
+    return null;
+  }
+  return res;
+};
+
 const Parameter = ({ data, parameter, first }) => (
   <Box border={first ? 'horizontal' : 'bottom'} pad={{ vertical: 'medium' }}>
     <Box direction='row' pad={{ bottom: 'small' }} wrap={true}>
@@ -232,7 +250,7 @@ const Response = ({
 }) => (
   <Box border={first ? 'horizontal' : 'bottom'} pad={{ vertical: 'medium' }}>
     <Box direction='row' pad={{ bottom: 'small' }} align='end'>
-      <Box basis='xxsmall'>
+      <Box basis={name && name.length > 30 ? 'large' : 'medium'} pad={{ right: 'medium' }}>
         <Heading level={3} size='small' margin={{ vertical: 'small' }}>
           <strong><code>{name}</code></strong>
         </Heading>
@@ -256,11 +274,20 @@ const Response = ({
         </Text>
       </Box>
     }
-    {response.examples ?
-      Object.keys(response.examples).map(key =>
-        <Schema key={key} label={key} data={data} schema={response.examples[key]} />)
-      :
-      <Schema data={data} schema={getExample(response)} />
+    {response.schema &&
+      <Tabs justify='start'>
+        <Tab title='Example Value'>
+          {response.examples ?
+            Object.keys(response.examples).map(key =>
+              <Schema key={key} label={key} data={data} schema={response.examples[key]} />)
+            :
+            <Schema data={data} schema={getExample(response)} />
+          }
+        </Tab>
+        <Tab title='Schema'>
+          <Schema data={data} schema={getSchema(response)} />
+        </Tab>
+      </Tabs>
     }
   </Box>
 );
