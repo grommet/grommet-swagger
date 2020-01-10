@@ -245,6 +245,34 @@ const parseSchemaName = (ref) => {
   return name[name.length - 1];
 };
 
+const handleTabs = (response, data) => {
+  console.log(response);
+  if (response.schema || response.content) {
+    return (
+      <Tabs justify='start'>
+        <Tab title='Example Value'>
+          {response.examples ?
+            Object.keys(response.examples).map(key =>
+              <Schema key={key} label={key} data={data} schema={response.examples[key]} />)
+            :
+            <Schema data={data} schema={getExample(response)} />
+          }
+        </Tab>
+        <Tab title='Schema'>
+          <Schema data={data} schema={getSchema(response)} />
+        </Tab>
+      </Tabs>
+    );
+  }
+  return (
+    response.examples ?
+      Object.keys(response.examples).map(key =>
+        <Schema key={key} label={key} data={data} schema={response.examples[key]} />)
+      :
+      <Schema data={data} schema={getExample(response)} />
+  );
+};
+
 const Response = ({
   data, refs, name, response, first,
 }) => (
@@ -274,21 +302,7 @@ const Response = ({
         </Text>
       </Box>
     }
-    {response.schema &&
-      <Tabs justify='start'>
-        <Tab title='Example Value'>
-          {response.examples ?
-            Object.keys(response.examples).map(key =>
-              <Schema key={key} label={key} data={data} schema={response.examples[key]} />)
-            :
-            <Schema data={data} schema={getExample(response)} />
-          }
-        </Tab>
-        <Tab title='Schema'>
-          <Schema data={data} schema={getSchema(response)} />
-        </Tab>
-      </Tabs>
-    }
+    { handleTabs(response, data) }
   </Box>
 );
 
