@@ -20,7 +20,7 @@ export default ({ contextSearch, data }) => (
       )].map(path => (
         <RoutedButton
           key={path}
-          path={`/endpoint${contextSearch}&path=${encodeURIComponent(path)}`}
+          path={`endpoint${contextSearch}&path=${encodeURIComponent(path)}`}
           hoverIndicator={true}
         >
           <Box pad={{ horizontal: 'medium', vertical: 'xsmall' }}>
