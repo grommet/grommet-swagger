@@ -19,7 +19,7 @@
     "grommet": "^2.7.9",
     "grommet-icons": "^4.2.0",
     "grommet-theme-hpe": "^0.4.2",
-    "highlight.js": "^9.12.0",
+    "highlight.js": "^10.1.2",
     "history": "^4.7.2",
     "js-yaml": "^3.10.0",
     "prop-types": "^15.6.0",
