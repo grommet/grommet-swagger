@@ -73,7 +73,7 @@
     "grommet-cli": "^5.1.2",
     "pre-commit": "^1.2.2",
     "react-dev-utils": "^5.0.1",
-    "simple-git": "^1.85.0",
+    "simple-git": "^3.3.0",
     "webpack": "^4.5.0",
     "webpack-cli": "^3.3.9",
     "webpack-dev-server": "^3.1.1"
